@@ -39,5 +39,4 @@ public class Member extends BaseEntity {
 
     @Setter
     private String refreshToken;
-
 }
