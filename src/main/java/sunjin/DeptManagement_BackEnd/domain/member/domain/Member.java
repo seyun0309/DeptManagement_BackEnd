@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import sunjin.DeptManagement_BackEnd.domain.department.domain.Department;
 import sunjin.DeptManagement_BackEnd.global.common.BaseEntity;
@@ -22,11 +23,12 @@ public class Member extends BaseEntity {
     private String userName;
 
     @Column(unique = true, nullable = false)
-    private String userId;
+    private String loginId;
 
     @Column(length = 100, nullable = false)
     private String password;
 
+    @Setter
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -34,4 +36,7 @@ public class Member extends BaseEntity {
     @JoinColumn(columnDefinition = "varchar(100)",nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Department department;
+
+    @Setter
+    private String refreshToken;
 }
