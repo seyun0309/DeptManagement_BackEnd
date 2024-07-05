@@ -44,7 +44,7 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProductStatusType status;
 
-    @Column(nullable = false)
+    @Column
     private LocalDateTime processDate;
 
     @JoinColumn(columnDefinition = "varchar(100)",nullable = false)

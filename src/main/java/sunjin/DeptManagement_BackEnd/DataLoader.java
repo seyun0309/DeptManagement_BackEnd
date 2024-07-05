@@ -38,7 +38,6 @@ public class DataLoader implements ApplicationRunner {
         jdbcTemplate.execute("ALTER SEQUENCE department_id_seq RESTART WITH 1");
         jdbcTemplate.execute("ALTER SEQUENCE member_id_seq RESTART WITH 1");
 
-
         Department hrDepartment = new Department("HR", "Human Resources");
         Department financeDepartment = new Department("FIN", "Finance");
         Department itDepartment = new Department("IT", "IT");
