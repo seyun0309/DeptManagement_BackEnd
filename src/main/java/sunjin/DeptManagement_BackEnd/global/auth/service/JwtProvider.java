@@ -59,7 +59,6 @@ public class JwtProvider {
         return GeneratedTokenDTO.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
 
-
     private String generateToken(SecurityMemberDTO securityMemberDTO, Long tokenPeriod) {
         Claims claims = Jwts.claims().setSubject("id");
         claims.put("loginId", securityMemberDTO.getLoginId());
@@ -67,7 +66,14 @@ public class JwtProvider {
         claims.setId(String.valueOf(securityMemberDTO.getId()));
         Date now = new Date();
 
-        return Jwts.builder().setClaims(claims).setIssuedAt(now).setExpiration(new Date(now.getTime() + tokenPeriod)).signWith(signingKey, signatureAlgorithm).compact();
+        System.out.println(claims);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + tokenPeriod))
+                .signWith(signingKey, signatureAlgorithm)
+                .compact();
     }
 
     @Transactional
