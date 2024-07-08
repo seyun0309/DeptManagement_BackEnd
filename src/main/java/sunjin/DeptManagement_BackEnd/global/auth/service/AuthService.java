@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import static sunjin.DeptManagement_BackEnd.global.enums.Role.EMPLOYEE;
 
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -41,9 +42,6 @@ public class AuthService {
             throw new BusinessException(ErrorCode.MEMBER_PROFILE_DUPLICATION);
         }
 
-        //디폴트 역할은 사원으로
-        Role role = EMPLOYEE;
-
         //deptCode 통해서 부서 내용 가져오기
         Department department = departmentRepository.findByDeptCode(signUpRequestDTO.getDeptCode())
                 .orElseThrow(() -> new BusinessException(ErrorCode.DEPARTMENT_NOT_FOUND));
@@ -52,9 +50,9 @@ public class AuthService {
         Member member = Member.builder()
                 .userName(signUpRequestDTO.getUserName())
                 .loginId(signUpRequestDTO.getLoginId())
-                .department(department)
                 .password(hashedPassword)
-                .role(role)
+                .role(EMPLOYEE)
+                .department(department)
                 .build();
 
         memberRepository.save(member);

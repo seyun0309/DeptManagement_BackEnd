@@ -10,6 +10,8 @@ import sunjin.DeptManagement_BackEnd.domain.department.domain.Department;
 import sunjin.DeptManagement_BackEnd.domain.department.repository.DepartmentRepository;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
+import sunjin.DeptManagement_BackEnd.domain.order.domain.Order;
+import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.global.enums.Role;
 
 @Component
@@ -52,6 +54,7 @@ public class DataLoader implements ApplicationRunner {
         String encodedPassword = passwordEncoder.encode("1234");
         Member member = new Member("seyun", "admin", encodedPassword, Role.ADMIN, adminDepartment, null);
         memberRepository.save(member);
+
 
         System.out.println("초기 데이터 삽입 완료!");
     }

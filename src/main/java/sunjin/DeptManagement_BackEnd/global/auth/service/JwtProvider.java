@@ -2,6 +2,7 @@ package sunjin.DeptManagement_BackEnd.global.auth.service;
 
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class JwtProvider {
     private final JwtProperties jwtConfig;
     private final MemberRepository memberRepository;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+    private final HttpServletRequest request;
 
     @Getter
     private Key signingKey;
@@ -114,6 +116,27 @@ public class JwtProvider {
             throw new JwtException("지원되지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
             throw new JwtException("잘못된 JWT 토큰입니다.");
+        }
+    }
+
+    public long extractIdFromTokenInHeader() {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
+            return extractIdFromToken(token);
+        } else {
+            throw new IllegalArgumentException("Token not found in header.");
+        }
+    }
+
+    public long extractIdFromToken(String token) {
+
+        try {
+            Jws<Claims> claims = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(token);
+            String idString = claims.getBody().get("jti", String.class);
+            return Long.parseLong(idString);
+        } catch (JwtException | IllegalArgumentException | NullPointerException e) {
+            throw new IllegalArgumentException("Error extracting ID from token.");
         }
     }
 
