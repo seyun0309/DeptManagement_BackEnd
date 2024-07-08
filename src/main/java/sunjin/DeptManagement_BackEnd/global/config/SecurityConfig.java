@@ -21,7 +21,6 @@ import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtProvider jwtProvider;
-
     private static final String EMPLOYEE = "EMPLOYEE";
     private static final String ADMIN = "ADMIN";
 
