@@ -3,7 +3,6 @@ package sunjin.DeptManagement_BackEnd.domain.order.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -63,5 +62,10 @@ public class Order extends BaseEntity {
         this.price = price;
         this.quantity = quantity;
         this.totalPrice = totalPrice;
+    }
+
+    public void updateStatus(String orderStatus, LocalDateTime localDateTime) {
+        this.status = ProductStatusType.valueOf(orderStatus);
+        this.processDate = localDateTime;
     }
 }

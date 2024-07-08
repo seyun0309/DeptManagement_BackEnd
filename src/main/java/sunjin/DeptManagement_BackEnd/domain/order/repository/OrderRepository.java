@@ -14,4 +14,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.department.id = :departmentId")
     List<Order> findAllByDeletedAtIsNull(@Param("departmentId") Long departmentId);
+
+    @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL")
+    List<Order> findAllByDeletedIsNull();
 }

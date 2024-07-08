@@ -1,6 +1,6 @@
 package sunjin.DeptManagement_BackEnd.domain.order.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,7 @@ import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
 import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.enums.ProductStatusType;
+import sunjin.DeptManagement_BackEnd.global.enums.ProductType;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OrderService {
+public class CommonOrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final DepartmentRepository departmentRepository;
@@ -41,9 +42,12 @@ public class OrderService {
 
         Department department = member.getDepartment();
 
+        // ProductType 변환
+        ProductType productType = createOrderRequestDTO.getProductTypeEnum();
+
         // 주문 매핑
         Order order = Order.builder()
-                .productType(createOrderRequestDTO.getProductType())
+                .productType(productType)
                 .price(createOrderRequestDTO.getPrice())
                 .productName(createOrderRequestDTO.getProductName())
                 .quantity(createOrderRequestDTO.getQuantity())
@@ -58,10 +62,11 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    @Transactional
-    public DepartmentOrdersResponseDTO getAllOrdersByDepartment(Long departmentId) {
-        departmentRepository.findById(departmentId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.DEPARTMENT_NOT_FOUND));
+    public DepartmentOrdersResponseDTO getAllOrdersByDepartment() {
+        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Long departmentId = member.getDepartment().getId();
 
         // 논리적 삭제된 주문은 거르고 가져옴
         List<Order> orders = orderRepository.findAllByDeletedAtIsNull(departmentId);
@@ -69,20 +74,25 @@ public class OrderService {
         int totalAmount = 0;
 
         for (Order order : orders) {
-            String createTimeFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일"));
+            String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일"));
+            String processDateFormatted = "-";
+            if(order.getProcessDate() != null) {
+                processDateFormatted = order.getProcessDate().format(DateTimeFormatter.ofPattern("M월 d일"));
+            }
             String productTypeDescription = order.getProductType() != null ? order.getProductType().getDescription() : null;
             String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
             String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
 
             GetAllOrderDTO getAllOrderDTO = new GetAllOrderDTO(
-                    createTimeFormatted,
+                    order.getId(),
+                    createDateFormatted,
                     productTypeDescription,
                     order.getProductName(),
                     order.getPrice(),
                     order.getQuantity(),
                     order.getTotalPrice(),
                     order.getStatus(),
-                    order.getProcessDate(),
+                    processDateFormatted,
                     applicantName,
                     applicantDeptName
             );
@@ -111,7 +121,10 @@ public class OrderService {
             throw new BusinessException(ErrorCode.INVALID_APPLICANT);
         }
 
-        order.updateInfo(createOrderRequestDTO.getProductType(),
+        // ProductType 변환
+        ProductType productType = createOrderRequestDTO.getProductTypeEnum();
+
+        order.updateInfo(productType,
                 createOrderRequestDTO.getProductName(),
                 createOrderRequestDTO.getPrice(),
                 createOrderRequestDTO.getQuantity(),

@@ -12,7 +12,7 @@ import sunjin.DeptManagement_BackEnd.global.enums.ProductType;
 public class createOrderRequestDTO {
 
     @NotBlank
-    private ProductType productType;
+    private String productType;
 
     @NotBlank
     private String productName;
@@ -22,4 +22,9 @@ public class createOrderRequestDTO {
 
     @NotBlank
     private int quantity;
+
+    // 문자열을 ProductType enum으로 변환하는 메서드
+    public ProductType getProductTypeEnum() {
+        return ProductType.fromDescription(this.productType);
+    }
 }

@@ -3,6 +3,7 @@ package sunjin.DeptManagement_BackEnd.global.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,30 +35,17 @@ public class SecurityConfig {
                     auth.requestMatchers("/auth/login", "auth/signup").permitAll();
                     auth.requestMatchers("/**").permitAll();
 
-//                    auth.requestMatchers(HttpMethod.POST, "/put_your_endpoint").hasAuthority(STUDENT_COUNCIL_MANAGER);
-//                    auth.requestMatchers(HttpMethod.GET, "/put_your_endpoint").hasAuthority(STUDENT_COUNCIL_MANAGER);
-//                    auth.requestMatchers(HttpMethod.DELETE, "/put_your_endpoint").hasAuthority(STUDENT_COUNCIL_MANAGER);
-//                    auth.requestMatchers(HttpMethod.PATCH, "/put_your_endpoint").hasAuthority(STUDENT_COUNCIL_MANAGER);
-//
-//                    auth.requestMatchers(HttpMethod.POST, "/put_your_endpoint").hasAuthority(CLUB_MANAGER);
-//                    auth.requestMatchers(HttpMethod.GET, "/put_your_endpoint").hasAuthority(CLUB_MANAGER);
-//                    auth.requestMatchers(HttpMethod.DELETE, "/put_your_endpoint").hasAuthority(CLUB_MANAGER);
-//                    auth.requestMatchers(HttpMethod.PATCH, "/put_your_endpoint").hasAuthority(CLUB_MANAGER);
-//
-//                    auth.requestMatchers(HttpMethod.POST, "/put_your_endpoint").hasAuthority(GENERAL_STUDENT_COUNCIL);
-//                    auth.requestMatchers(HttpMethod.GET, "/put_your_endpoint").hasAuthority(GENERAL_STUDENT_COUNCIL);
-//                    auth.requestMatchers(HttpMethod.DELETE, "/put_your_endpoint").hasAuthority(GENERAL_STUDENT_COUNCIL);
-//                    auth.requestMatchers(HttpMethod.PATCH, "/put_your_endpoint").hasAuthority(GENERAL_STUDENT_COUNCIL);
-//
-//                    auth.requestMatchers(HttpMethod.POST, "/put_your_endpoint").hasAuthority(STUDENT);
-//                    auth.requestMatchers(HttpMethod.GET, "/put_your_endpoint").hasAuthority(STUDENT);
-//                    auth.requestMatchers(HttpMethod.DELETE, "/put_your_endpoint").hasAuthority(STUDENT);
-//                    auth.requestMatchers(HttpMethod.PATCH, "/put_your_endpoint").hasAuthority(STUDENT);
-//
-//                    auth.requestMatchers(HttpMethod.POST, "/put_your_endpoint").hasAuthority(ADMIN);
-//                    auth.requestMatchers(HttpMethod.GET, "/put_your_endpoint").hasAuthority(ADMIN);
-//                    auth.requestMatchers(HttpMethod.DELETE, "/put_your_endpoint").hasAuthority(ADMIN);
-//                    auth.requestMatchers(HttpMethod.PATCH, "/put_your_endpoint").hasAuthority(ADMIN);
+                    // 관리자
+                    auth.requestMatchers(HttpMethod.GET, "/admin/orders").hasAuthority(ADMIN);
+                    auth.requestMatchers(HttpMethod.GET, "/admin/orders/{departmentId}").hasAuthority(ADMIN);
+                    auth.requestMatchers(HttpMethod.POST, "/admin/orders/{orderId}").hasAuthority(ADMIN);
+
+                    // 일반
+                    auth.requestMatchers(HttpMethod.POST, "/api/orders").hasAuthority(EMPLOYEE);
+                    auth.requestMatchers(HttpMethod.GET, "/api/orders").hasAuthority(EMPLOYEE);
+                    auth.requestMatchers(HttpMethod.PATCH, "/api/orders/{orderId}").hasAuthority(EMPLOYEE);
+                    auth.requestMatchers(HttpMethod.POST, "/api/orders/{orderId}").hasAuthority(EMPLOYEE);
+
                     //todo
                     //권한별로 엔드포인트 설정하기
                     auth.anyRequest().authenticated();
