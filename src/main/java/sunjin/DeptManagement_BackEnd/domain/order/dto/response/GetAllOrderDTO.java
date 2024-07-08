@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class GetAllOrderDTO {
+    private Long orderId;
     private String createTime;
     private String productType;
     private String productName;
@@ -18,7 +19,7 @@ public class GetAllOrderDTO {
     private int quantity;
     private int totalPrice;
     private ProductStatusType status;
-    private LocalDateTime processDate;
+    private String processDate;
     private String applicant;
     private String applicantDeptName;
 }
