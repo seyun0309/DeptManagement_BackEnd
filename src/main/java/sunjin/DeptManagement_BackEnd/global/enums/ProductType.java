@@ -15,4 +15,13 @@ public enum ProductType {
         this.code = code;
         this.description = description;
     }
+
+    public static ProductType fromDescription(String description) {
+        for (ProductType type : ProductType.values()) {
+            if (type.description.equalsIgnoreCase(description)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unsupported product type description: " + description);
+    }
 }
