@@ -18,7 +18,7 @@ public class CommonOrderController {
     private final CommonOrderService commonOrderService;
 
     @PostMapping("/api/orders")
-    @Operation(summary = "[회원] 주문 신청 로직", description = "물품 타입, 물품 이름, 개당 가격, 수량을 입력하면 물품 신청이 진행됩니다")
+    @Operation(summary = "[회원] 주문 신청 로직", description = "물품 타입, 물품 이름, 개당 가격, 수량을 입력하면 주문 신청이 진행됩니다")
     public ResponseEntity<String> createOrder(@RequestBody @Valid createOrderRequestDTO createOrderRequestDTO){
         commonOrderService.createOrder(createOrderRequestDTO);
         return ResponseEntity.ok("주문에 성공했습니다.");
@@ -26,7 +26,7 @@ public class CommonOrderController {
 
     @GetMapping("/api/orders")
     @Operation(summary = "[회원] 본인 부서에서 신청된 모든 주문 조회",
-            description = "URL의 departmentID를 통해 해당 부서의 이름으로 신청된 모든 물품 조회가 진행됩니다")
+            description = "URL의 departmentID를 통해 해당 부서의 이름으로 신청된 모든 주문 조회가 진행됩니다")
     public ResponseEntity<DepartmentOrdersResponseDTO> getAllOrder(){
         DepartmentOrdersResponseDTO response = commonOrderService.getAllOrdersByDepartment();
         return ResponseEntity.ok(response);
