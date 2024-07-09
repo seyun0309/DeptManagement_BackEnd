@@ -64,8 +64,8 @@ public class Order extends BaseEntity {
         this.totalPrice = totalPrice;
     }
 
-    public void updateStatus(String orderStatus, LocalDateTime localDateTime) {
-        this.status = ProductStatusType.valueOf(orderStatus);
+    public void updateStatus(ProductStatusType orderStatus, LocalDateTime localDateTime) {
+        this.status = orderStatus;
         this.processDate = localDateTime;
     }
 }
