@@ -53,12 +53,16 @@ public class JwtProvider {
     public GeneratedTokenDTO generateTokens(SecurityMemberDTO securityMemberDTO) {
         String accessToken = generateToken(securityMemberDTO, ACCESS_TOKEN_PERIOD);
         String refreshToken = generateToken(securityMemberDTO, REFRESH_TOKEN_PERIOD);
+        String userName = securityMemberDTO.getUserName();
 
         saveRefreshToken(securityMemberDTO.getId(), refreshToken);
 
-        return GeneratedTokenDTO.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+        return GeneratedTokenDTO.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .userName(userName)
+                .build();
     }
-
 
     private String generateToken(SecurityMemberDTO securityMemberDTO, Long tokenPeriod) {
         Claims claims = Jwts.claims().setSubject("id");
