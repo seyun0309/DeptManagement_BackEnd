@@ -12,7 +12,6 @@ import sunjin.DeptManagement_BackEnd.domain.order.dto.response.GetAllOrderDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.enums.ProductStatusType;
-import sunjin.DeptManagement_BackEnd.global.enums.ProductType;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
 import java.time.LocalDateTime;
@@ -33,7 +32,7 @@ public class AdminOrderService {
 
         List<GetAllOrderDTO> orderDTOList = new ArrayList<>();
         for (Order order : orders) {
-            String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일"));
+            String latestDateTime = (order.getModifiedAt().isAfter(order.getCreatedAt()) ? order.getModifiedAt() : order.getCreatedAt()).format(DateTimeFormatter.ofPattern("M월 d일"));
             String processDateFormatted = "-";
             if(order.getProcessDate() != null) {
                 processDateFormatted = order.getProcessDate().format(DateTimeFormatter.ofPattern("M월 d일"));
@@ -45,7 +44,7 @@ public class AdminOrderService {
 
             GetAllOrderDTO getAllOrderDTO = new GetAllOrderDTO(
                     order.getId(),
-                    createDateFormatted,
+                    latestDateTime,
                     productTypeDescription,
                     order.getProductName(),
                     order.getPrice(),
@@ -71,7 +70,7 @@ public class AdminOrderService {
         int totalAmount = 0;
 
         for (Order order : orders) {
-            String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일"));
+            String latestDateTime = (order.getModifiedAt().isAfter(order.getCreatedAt()) ? order.getModifiedAt() : order.getCreatedAt()).format(DateTimeFormatter.ofPattern("M월 d일"));
             String processDateFormatted = "-";
             if(order.getProcessDate() != null) {
                 processDateFormatted = order.getProcessDate().format(DateTimeFormatter.ofPattern("M월 d일"));
@@ -83,7 +82,7 @@ public class AdminOrderService {
 
             GetAllOrderDTO getAllOrderDTO = new GetAllOrderDTO(
                     order.getId(),
-                    createDateFormatted,
+                    latestDateTime,
                     productTypeDescription,
                     order.getProductName(),
                     order.getPrice(),
