@@ -78,6 +78,7 @@ public class CommonOrderService {
                 processDateFormatted = order.getProcessDate().format(DateTimeFormatter.ofPattern("M월 d일"));
             }
             String productTypeDescription = order.getProductType() != null ? order.getProductType().getDescription() : null;
+            String orderTypeStatus = order.getStatus() != null ? order.getStatus().getDescription() : null;
             String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
             String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
 
@@ -89,7 +90,7 @@ public class CommonOrderService {
                     order.getPrice(),
                     order.getQuantity(),
                     order.getTotalPrice(),
-                    order.getStatus(),
+                    orderTypeStatus,
                     processDateFormatted,
                     applicantName,
                     applicantDeptName
