@@ -2,8 +2,8 @@ package sunjin.DeptManagement_BackEnd.global.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import sunjin.DeptManagement_BackEnd.global.auth.filter.JwtAuthFilter;
+import sunjin.DeptManagement_BackEnd.global.auth.handler.CustomAccessDeniedHandler;
 import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
 
 @Configuration
@@ -21,9 +22,7 @@ import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtProvider jwtProvider;
-
-    private static final String EMPLOYEE = "EMPLOYEE";
-    private static final String ADMIN = "ADMIN";
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -32,23 +31,13 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/auth/login", "auth/signup").permitAll();
+                    auth.requestMatchers("/admin/**").hasAuthority("ADMIN");
                     auth.requestMatchers("/**").permitAll();
 
-                    // 관리자
-                    auth.requestMatchers(HttpMethod.GET, "/admin/orders").hasAuthority(ADMIN);
-                    auth.requestMatchers(HttpMethod.GET, "/admin/orders/{departmentId}").hasAuthority(ADMIN);
-                    auth.requestMatchers(HttpMethod.POST, "/admin/orders/{orderId}").hasAuthority(ADMIN);
-
-                    // 일반
-                    auth.requestMatchers(HttpMethod.POST, "/api/orders").hasAuthority(EMPLOYEE);
-                    auth.requestMatchers(HttpMethod.GET, "/api/orders").hasAuthority(EMPLOYEE);
-                    auth.requestMatchers(HttpMethod.PATCH, "/api/orders/{orderId}").hasAuthority(EMPLOYEE);
-                    auth.requestMatchers(HttpMethod.POST, "/api/orders/{orderId}").hasAuthority(EMPLOYEE);
-
-                    //todo
-                    //권한별로 엔드포인트 설정하기
                     auth.anyRequest().authenticated();
+                })
+                .exceptionHandling(exceptionHandling -> {
+                    exceptionHandling.accessDeniedHandler(accessDeniedHandler);
                 })
                 .addFilterBefore(new JwtAuthFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .logout(Customizer.withDefaults());

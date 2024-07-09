@@ -10,8 +10,6 @@ import sunjin.DeptManagement_BackEnd.domain.department.domain.Department;
 import sunjin.DeptManagement_BackEnd.domain.department.repository.DepartmentRepository;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
-import sunjin.DeptManagement_BackEnd.domain.order.domain.Order;
-import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.global.enums.Role;
 
 @Component

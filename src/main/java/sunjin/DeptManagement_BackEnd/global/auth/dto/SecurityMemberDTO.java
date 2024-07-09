@@ -22,6 +22,6 @@ public class SecurityMemberDTO {
                 .id(Long.valueOf(claims.getId()))
                 .loginId(claims.get("loginId", String.class))
                 .userName(claims.get("userName", String.class))
-                .role(Role.fromValue(claims.get("role", String.class))).build();
+                .role(Role.valueOf(claims.get("role", String.class))).build();
     }
 }

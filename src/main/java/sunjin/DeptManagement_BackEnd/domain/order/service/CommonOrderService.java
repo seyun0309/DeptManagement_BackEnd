@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import sunjin.DeptManagement_BackEnd.domain.department.domain.Department;
-import sunjin.DeptManagement_BackEnd.domain.department.repository.DepartmentRepository;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
 import sunjin.DeptManagement_BackEnd.domain.order.domain.Order;
@@ -31,7 +30,6 @@ import java.util.Objects;
 public class CommonOrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
-    private final DepartmentRepository departmentRepository;
     private final JwtProvider jwtProvider;
 
     @Transactional
@@ -80,6 +78,7 @@ public class CommonOrderService {
                 processDateFormatted = order.getProcessDate().format(DateTimeFormatter.ofPattern("M월 d일"));
             }
             String productTypeDescription = order.getProductType() != null ? order.getProductType().getDescription() : null;
+            String orderTypeStatus = order.getStatus() != null ? order.getStatus().getDescription() : null;
             String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
             String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
 
@@ -91,7 +90,7 @@ public class CommonOrderService {
                     order.getPrice(),
                     order.getQuantity(),
                     order.getTotalPrice(),
-                    order.getStatus(),
+                    orderTypeStatus,
                     processDateFormatted,
                     applicantName,
                     applicantDeptName
