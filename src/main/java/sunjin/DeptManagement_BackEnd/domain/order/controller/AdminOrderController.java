@@ -19,14 +19,14 @@ public class AdminOrderController {
     private final AdminOrderService adminOrderService;
 
     @GetMapping("/admin/orders")
-    @Operation(summary = "[관리자] 신청된 모든 물품 조회", description = "신청된 모든 주문을 가져옵니다")
+    @Operation(summary = "[관리자] 신청된 모든 주문 조회", description = "신청된 모든 주문을 가져옵니다")
     public ResponseEntity<List<GetAllOrderDTO>> getAllOrder(){
         List<GetAllOrderDTO> response = adminOrderService.findAllOrder();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/admin/orders/{departmentId}")
-    @Operation(summary = "[관리자] 각 부서에서 신청된 모든 물품 조회", description = "URL의 departmentId를 통해 각 부서에서 신청된 주문을 가져옵니다.")
+    @Operation(summary = "[관리자] 각 부서에서 신청된 모든 주문 조회", description = "URL의 departmentId를 통해 각 부서에서 신청된 주문을 가져옵니다.")
     public ResponseEntity<DepartmentOrdersResponseDTO> getAllOrder(@PathVariable("departmentId") Long departmentId){
         DepartmentOrdersResponseDTO response = adminOrderService.getAllOrdersByDepartment(departmentId);
         return ResponseEntity.ok(response);
