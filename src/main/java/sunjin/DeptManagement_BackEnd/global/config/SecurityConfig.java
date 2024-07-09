@@ -2,6 +2,7 @@ package sunjin.DeptManagement_BackEnd.global.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,10 +24,6 @@ public class SecurityConfig {
     private final JwtProvider jwtProvider;
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
-
-    private static final String EMPLOYEE = "EMPLOYEE";
-    private static final String ADMIN = "ADMIN";
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
@@ -34,13 +31,9 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/auth/login", "/auth/signup").permitAll();
-                    auth.requestMatchers("/admin/**").hasRole(ADMIN);
-                    auth.requestMatchers("/api/**").hasRole(EMPLOYEE);
+                    auth.requestMatchers("/admin/**").hasAuthority("ADMIN");
                     auth.requestMatchers("/**").permitAll();
 
-                    //todo
-                    //권한별로 엔드포인트 설정하기
                     auth.anyRequest().authenticated();
                 })
                 .exceptionHandling(exceptionHandling -> {
