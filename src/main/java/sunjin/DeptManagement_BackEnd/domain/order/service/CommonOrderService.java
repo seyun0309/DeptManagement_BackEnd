@@ -72,7 +72,7 @@ public class CommonOrderService {
         int totalAmount = 0;
 
         for (Order order : orders) {
-            String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일"));
+            String latestDateTime = (order.getModifiedAt().isAfter(order.getCreatedAt()) ? order.getModifiedAt() : order.getCreatedAt()).format(DateTimeFormatter.ofPattern("M월 d일"));
             String processDateFormatted = "-";
             if(order.getProcessDate() != null) {
                 processDateFormatted = order.getProcessDate().format(DateTimeFormatter.ofPattern("M월 d일"));
@@ -84,7 +84,7 @@ public class CommonOrderService {
 
             GetAllOrderDTO getAllOrderDTO = new GetAllOrderDTO(
                     order.getId(),
-                    createDateFormatted,
+                    latestDateTime,
                     productTypeDescription,
                     order.getProductName(),
                     order.getPrice(),
@@ -123,7 +123,8 @@ public class CommonOrderService {
         // ProductType 변환
         ProductType productType = createOrderRequestDTO.getProductTypeEnum();
 
-        order.updateInfo(productType,
+        order.updateInfo(
+                productType,
                 createOrderRequestDTO.getProductName(),
                 createOrderRequestDTO.getPrice(),
                 createOrderRequestDTO.getQuantity(),
