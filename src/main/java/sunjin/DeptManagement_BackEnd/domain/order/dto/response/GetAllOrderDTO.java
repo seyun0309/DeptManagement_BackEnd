@@ -18,7 +18,7 @@ public class GetAllOrderDTO {
     private int price;
     private int quantity;
     private int totalPrice;
-    private ProductStatusType status;
+    private String status;
     private String processDate;
     private String applicant;
     private String applicantDeptName;
