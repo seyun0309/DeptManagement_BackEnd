@@ -3,9 +3,6 @@ package sunjin.DeptManagement_BackEnd.domain.order.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import sunjin.DeptManagement_BackEnd.global.enums.ProductStatusType;
-import sunjin.DeptManagement_BackEnd.global.enums.ProductType;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
