@@ -26,7 +26,7 @@ public class CommonOrderController {
 
     @GetMapping("/api/orders")
     @Operation(summary = "[회원] 본인 부서에서 신청된 모든 주문 조회",
-            description = "URL의 departmentID를 통해 해당 부서의 이름으로 신청된 모든 주문 조회가 진행됩니다")
+            description = "현재 사용자의 토큰을 통해 본인 부서의 이름으로 신청된 모든 주문 조회가 진행됩니다")
     public ResponseEntity<DepartmentOrdersResponseDTO> getAllOrder(){
         DepartmentOrdersResponseDTO response = commonOrderService.getAllOrdersByDepartment();
         return ResponseEntity.ok(response);

@@ -10,15 +10,15 @@ import lombok.*;
 @Builder
 public class SignUpRequestDTO {
 
-    @NotBlank
+    @NotBlank(message = "부서 코드를 입력해주세요")
     private String deptCode;
 
-    @NotBlank
+    @NotBlank(message = "이름을 입력해주세요")
     private String userName;
 
-    @NotBlank
+    @NotBlank(message = "아이디를 입력해주세요")
     private String loginId;
 
-    @NotBlank
+    @NotBlank(message = "비밀번호를 입력해주세요")
     private String password;
 }

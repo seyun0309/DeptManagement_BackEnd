@@ -107,13 +107,13 @@ public class CommonOrderService {
 
     @Transactional
     public void updateOrder(createOrderRequestDTO createOrderRequestDTO, Long orderId) {
-        //물품 상태가 "대기"일 경우에만 수정 가능
+        //주문 상태가 "대기"인 경우에만 수정 가능
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
         if (order.getStatus() != ProductStatusType.WAIT) {
             throw new BusinessException(ErrorCode.ORDER_NOT_WAITING);
         }
 
-        //해당 물품 신청자와 현재 로그인한 사람 비교
+        //해당 주문 신청자와 현재 로그인한 사람 비교
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
         if (!Objects.equals(member.getLoginId(), order.getMember().getLoginId())) {
@@ -133,7 +133,7 @@ public class CommonOrderService {
 
     @Transactional
     public void deleteOrder(Long orderId) {
-        //물품 상태가 "대기"일 경우에만 삭제 가능
+        //물품 상태가 "대기"인 경우에만 삭제 가능
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
         if (order.getStatus() != ProductStatusType.WAIT) {
             throw new BusinessException(ErrorCode.ORDER_NOT_WAITING);
