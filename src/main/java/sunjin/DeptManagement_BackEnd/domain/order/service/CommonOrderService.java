@@ -38,115 +38,137 @@ public class CommonOrderService {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Department department = member.getDepartment();
+        if(member.getRefreshToken() != null){
+            Department department = member.getDepartment();
 
-        // ProductType 변환
-        ProductType productType = createOrderRequestDTO.getProductTypeEnum();
+            // ProductType 변환
+            ProductType productType = createOrderRequestDTO.getProductTypeEnum();
 
-        // 주문 매핑
-        Order order = Order.builder()
-                .productType(productType)
-                .price(createOrderRequestDTO.getPrice())
-                .productName(createOrderRequestDTO.getProductName())
-                .quantity(createOrderRequestDTO.getQuantity())
-                .totalPrice(createOrderRequestDTO.getPrice() * createOrderRequestDTO.getQuantity())
-                .status(ProductStatusType.WAIT)
-                .processDate(null)
-                .member(member)
-                .department(department)
-                .build();
+            // 주문 매핑
+            Order order = Order.builder()
+                    .productType(productType)
+                    .price(createOrderRequestDTO.getPrice())
+                    .productName(createOrderRequestDTO.getProductName())
+                    .quantity(createOrderRequestDTO.getQuantity())
+                    .totalPrice(createOrderRequestDTO.getPrice() * createOrderRequestDTO.getQuantity())
+                    .status(ProductStatusType.WAIT)
+                    .processDate(null)
+                    .member(member)
+                    .department(department)
+                    .build();
 
-        // 주문 저장
-        orderRepository.save(order);
+            // 주문 저장
+            orderRepository.save(order);
+        } else{
+            throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
+        }
     }
 
     public DepartmentOrdersResponseDTO getAllOrdersByDepartment() {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Long departmentId = member.getDepartment().getId();
+        if(member.getRefreshToken()!=null) {
+            Long departmentId = member.getDepartment().getId();
 
-        // 논리적 삭제된 주문은 거르고 가져옴
-        List<Order> orders = orderRepository.findAllByDeletedAtIsNull(departmentId);
-        List<GetAllOrderDTO> orderDTOList = new ArrayList<>();
-        int totalAmount = 0;
+            // 논리적 삭제된 주문은 거르고 가져옴
+            List<Order> orders = orderRepository.findAllByDeletedAtIsNull(departmentId);
+            List<GetAllOrderDTO> orderDTOList = new ArrayList<>();
+            int totalAmount = 0;
 
-        for (Order order : orders) {
-            String latestDateTime = (order.getModifiedAt().isAfter(order.getCreatedAt()) ? order.getModifiedAt() : order.getCreatedAt()).format(DateTimeFormatter.ofPattern("M월 d일"));
-            String processDateFormatted = "-";
-            if(order.getProcessDate() != null) {
-                processDateFormatted = order.getProcessDate().format(DateTimeFormatter.ofPattern("M월 d일"));
+            for (Order order : orders) {
+                String latestDateTime = (order.getModifiedAt().isAfter(order.getCreatedAt()) ? order.getModifiedAt() : order.getCreatedAt()).format(DateTimeFormatter.ofPattern("M월 d일"));
+                String processDateFormatted = "-";
+                if(order.getProcessDate() != null) {
+                    processDateFormatted = order.getProcessDate().format(DateTimeFormatter.ofPattern("M월 d일"));
+                }
+                String productTypeDescription = order.getProductType() != null ? order.getProductType().getDescription() : null;
+                String orderTypeStatus = order.getStatus() != null ? order.getStatus().getDescription() : null;
+                String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
+                String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
+
+                GetAllOrderDTO getAllOrderDTO = new GetAllOrderDTO(
+                        order.getId(),
+                        latestDateTime,
+                        productTypeDescription,
+                        order.getProductName(),
+                        order.getPrice(),
+                        order.getQuantity(),
+                        order.getTotalPrice(),
+                        orderTypeStatus,
+                        processDateFormatted,
+                        applicantName,
+                        applicantDeptName
+                );
+
+                orderDTOList.add(getAllOrderDTO);
+                if(order.getStatus() == ProductStatusType.WAIT) {
+                    totalAmount += order.getTotalPrice();
+                }
             }
-            String productTypeDescription = order.getProductType() != null ? order.getProductType().getDescription() : null;
-            String orderTypeStatus = order.getStatus() != null ? order.getStatus().getDescription() : null;
-            String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
-            String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
-
-            GetAllOrderDTO getAllOrderDTO = new GetAllOrderDTO(
-                    order.getId(),
-                    latestDateTime,
-                    productTypeDescription,
-                    order.getProductName(),
-                    order.getPrice(),
-                    order.getQuantity(),
-                    order.getTotalPrice(),
-                    orderTypeStatus,
-                    processDateFormatted,
-                    applicantName,
-                    applicantDeptName
-            );
-
-            orderDTOList.add(getAllOrderDTO);
-            if(order.getStatus() == ProductStatusType.WAIT) {
-                totalAmount += order.getTotalPrice();
-            }
+            return new DepartmentOrdersResponseDTO(orderDTOList, totalAmount);
+        } else {
+            throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
-
-        return new DepartmentOrdersResponseDTO(orderDTOList, totalAmount);
     }
 
     @Transactional
     public void updateOrder(createOrderRequestDTO createOrderRequestDTO, Long orderId) {
-        //주문 상태가 "대기"인 경우에만 수정 가능
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
-        if (order.getStatus() != ProductStatusType.WAIT) {
-            throw new BusinessException(ErrorCode.ORDER_NOT_WAITING);
-        }
-
         //해당 주문 신청자와 현재 로그인한 사람 비교
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
-        if (!Objects.equals(member.getLoginId(), order.getMember().getLoginId())) {
-            throw new BusinessException(ErrorCode.INVALID_APPLICANT);
+
+        if(member.getRefreshToken() != null) {
+            //주문 상태가 "대기"인 경우에만 수정 가능
+            Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+            if (order.getStatus() != ProductStatusType.WAIT) {
+                throw new BusinessException(ErrorCode.ORDER_NOT_WAITING);
+            }
+
+            if (order.getDeletedAt() != null) {
+                throw new BusinessException(ErrorCode.ORDER_NOT_FOUND);
+            }
+
+            if (!Objects.equals(member.getLoginId(), order.getMember().getLoginId())) {
+                throw new BusinessException(ErrorCode.INVALID_APPLICANT);
+            }
+
+            // ProductType 변환
+            ProductType productType = createOrderRequestDTO.getProductTypeEnum();
+
+            order.updateInfo(
+                    productType,
+                    createOrderRequestDTO.getProductName(),
+                    createOrderRequestDTO.getPrice(),
+                    createOrderRequestDTO.getQuantity(),
+                    createOrderRequestDTO.getPrice() * createOrderRequestDTO.getQuantity());
+        } else {
+            throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
 
-        // ProductType 변환
-        ProductType productType = createOrderRequestDTO.getProductTypeEnum();
-
-        order.updateInfo(
-                productType,
-                createOrderRequestDTO.getProductName(),
-                createOrderRequestDTO.getPrice(),
-                createOrderRequestDTO.getQuantity(),
-                createOrderRequestDTO.getPrice() * createOrderRequestDTO.getQuantity());
     }
 
     @Transactional
     public void deleteOrder(Long orderId) {
-        //물품 상태가 "대기"인 경우에만 삭제 가능
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
-        if (order.getStatus() != ProductStatusType.WAIT) {
-            throw new BusinessException(ErrorCode.ORDER_NOT_WAITING);
-        }
-
-        //해당 물품 신청자와 현재 로그인한 사람 비교
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
-        if (!Objects.equals(member.getLoginId(), order.getMember().getLoginId())) {
-            throw new BusinessException(ErrorCode.INVALID_APPLICANT);
-        }
 
-        order.setDeletedAt(LocalDateTime.now());
-        orderRepository.save(order);
+        if(member.getRefreshToken() != null) {
+            //물품 상태가 "대기"인 경우에만 삭제 가능
+            Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+            if (order.getStatus() != ProductStatusType.WAIT) {
+                throw new BusinessException(ErrorCode.ORDER_NOT_WAITING);
+            }
+
+            //해당 물품 신청자와 현재 로그인한 사람 비교
+            if (!Objects.equals(member.getLoginId(), order.getMember().getLoginId())) {
+                throw new BusinessException(ErrorCode.INVALID_APPLICANT);
+            }
+
+            order.setDeletedAt(LocalDateTime.now());
+            orderRepository.save(order);
+        } else {
+            throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
+        }
     }
 }
