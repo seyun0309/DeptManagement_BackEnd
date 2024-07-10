@@ -19,6 +19,7 @@ import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.enums.Role;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static sunjin.DeptManagement_BackEnd.global.enums.Role.EMPLOYEE;
@@ -103,5 +104,14 @@ public class AuthService {
         } else {
             throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
         }
+    }
+
+    @Transactional
+    public void logout() {
+        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+
+        member.setRefreshToken(null);
+        memberRepository.save(member);
     }
 }
