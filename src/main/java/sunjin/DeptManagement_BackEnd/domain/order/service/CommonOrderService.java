@@ -102,7 +102,7 @@ public class CommonOrderService {
                 );
 
                 orderDTOList.add(getAllOrderDTO);
-                if(order.getStatus() == ProductStatusType.WAIT) {
+                if(order.getStatus() == ProductStatusType.APPROVE) {
                     totalAmount += order.getTotalPrice();
                 }
             }
