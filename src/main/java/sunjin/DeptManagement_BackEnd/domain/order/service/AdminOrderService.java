@@ -111,7 +111,7 @@ public class AdminOrderService {
                 );
 
                 orderDTOList.add(getAllOrderDTO);
-                if(order.getStatus() == ProductStatusType.WAIT) {
+                if(order.getStatus() == ProductStatusType.APPROVE) {
                     totalAmount += order.getTotalPrice();
                 }
             }
