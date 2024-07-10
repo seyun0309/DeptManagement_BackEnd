@@ -5,11 +5,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.GeneratedTokenDTO;
+import sunjin.DeptManagement_BackEnd.global.auth.dto.SecurityMemberDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.TokenModifyDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.request.LoginRequestDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.request.SignUpRequestDTO;
@@ -35,7 +35,7 @@ public class AuthController {
 
     @PostMapping("/verify/department")
     @Operation(summary = "부서 검증 로직", description = "부서 코드를 검사합니다")
-    public ResponseEntity<VerifyResponseDTO> duplicateEmail(@RequestBody VerifyRequestDTO verifyRequestDTO) {
+    public ResponseEntity<VerifyResponseDTO> verifyDept(@RequestBody VerifyRequestDTO verifyRequestDTO) {
         String deptCode = verifyRequestDTO.getDeptCode();
         VerifyResponseDTO verifyResponseDTO = authService.verifyDeptCode(deptCode);
 
@@ -48,6 +48,13 @@ public class AuthController {
         GeneratedTokenDTO generatedTokenDTO = authService.login(loginRequestDTO);
         return ResponseEntity.ok(generatedTokenDTO);
 
+    }
+
+    @PatchMapping("/logout")
+    @Operation(summary = "로그아웃 로직", description = "사용자의 Refresh Token을 무효화합니다.")
+    public ResponseEntity<String> logout() {
+        authService.logout();
+        return ResponseEntity.ok("로그아웃이 정상적으로 되었습니다");
     }
 
     @PatchMapping("/tokens")
