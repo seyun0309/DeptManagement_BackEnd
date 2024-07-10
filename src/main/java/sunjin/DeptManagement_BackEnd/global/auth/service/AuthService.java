@@ -19,7 +19,6 @@ import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.enums.Role;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import static sunjin.DeptManagement_BackEnd.global.enums.Role.EMPLOYEE;
