@@ -40,7 +40,7 @@ public class CommonOrderController {
         return ResponseEntity.ok("주문 수정에 성공했습니다.");
     }
 
-    @PostMapping("/api/orders/{orderId}")
+    @DeleteMapping("/api/orders/{orderId}")
     @Operation(summary = "주문 삭제 로직", description = "URL의 orderID를 통해 해당 물품 삭제가 진행됩니다.")
     public ResponseEntity<String> deleteOrder(@PathVariable("orderId") Long orderId){
         commonOrderService.deleteOrder(orderId);
