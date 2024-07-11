@@ -33,6 +33,11 @@ public enum ErrorCode {
     ORDER_NOT_FOUND(404, "O001", "존재하는 주문이 없습니다"),
     ORDER_NOT_WAITING(400, "O002", "주문이 대기중일 때만 가능합니다"),
 
+    // Receipt
+    RECEIPT_NOT_FOUND(404, "R001", "존재하는 영수증이 없습니다"),
+    IMG_NOT_FOUND(404, "R002", "이미지를 넣어주세요"),
+    IMG_ONLY_JPG(404, "R003", "이미지의 파일을 JPG로 바꿔주세요"),
+
     // Token
     MISMATCH_REFRESH_TOKEN(401, "T001", "유효하지 않은 리프레시 토큰입니다"),
     NO_PERMISSION(401, "T002", "요청에 대한 권한이 없습니다");
