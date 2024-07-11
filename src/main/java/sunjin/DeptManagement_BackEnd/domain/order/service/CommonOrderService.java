@@ -77,10 +77,10 @@ public class CommonOrderService {
             int totalAmount = 0;
 
             for (Order order : orders) {
-                String latestDateTime = (order.getModifiedAt().isAfter(order.getCreatedAt()) ? order.getModifiedAt() : order.getCreatedAt()).format(DateTimeFormatter.ofPattern("M월 d일"));
+                String latestDateTime = (order.getModifiedAt().isAfter(order.getCreatedAt()) ? order.getModifiedAt() : order.getCreatedAt()).format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                 String processDateFormatted = "-";
                 if(order.getProcessDate() != null) {
-                    processDateFormatted = order.getProcessDate().format(DateTimeFormatter.ofPattern("M월 d일"));
+                    processDateFormatted = order.getProcessDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                 }
                 String productTypeDescription = order.getProductType() != null ? order.getProductType().getDescription() : null;
                 String orderTypeStatus = order.getStatus() != null ? order.getStatus().getDescription() : null;
