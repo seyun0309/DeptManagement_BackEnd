@@ -48,10 +48,22 @@ public class DataLoader implements ApplicationRunner {
         departmentRepository.save(itDepartment);
         departmentRepository.save(adminDepartment);
 
-        // 관리자 초기 데이터 삽입
-        String encodedPassword = passwordEncoder.encode("1234");
-        Member member = new Member("seyun", "admin", encodedPassword, Role.ADMIN, adminDepartment, null);
-        memberRepository.save(member);
+        // 멤버 초기 데이터 삽입
+        String encodedPassword1 = passwordEncoder.encode("1234");
+        Member member1 = new Member("Kim", "employee1", encodedPassword1, Role.EMPLOYEE, hrDepartment, null);
+
+        String encodedPassword2 = passwordEncoder.encode("1234");
+        Member member2 = new Member("Hong", "employee2", encodedPassword2, Role.EMPLOYEE, hrDepartment, null);
+
+        String encodedPassword3 = passwordEncoder.encode("1234");
+        Member member3 = new Member("Hwang", "teamleader", encodedPassword3, Role.TEAMLEADER, hrDepartment, null);
+
+        String encodedPassword4 = passwordEncoder.encode("1234");
+        Member member4 = new Member("CHOI", "centerdirector", encodedPassword4, Role.CENTERDIRECTOR, hrDepartment, null);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+        memberRepository.save(member3);
+        memberRepository.save(member4);
 
 
         System.out.println("초기 데이터 삽입 완료!");

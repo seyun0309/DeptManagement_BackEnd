@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @Builder
-public class DepartmentOrdersResponseDTO {
+public class OrdersResponseDTO {
     private List<GetAllOrderDTO> orders;
     private int totalAmount;
 }

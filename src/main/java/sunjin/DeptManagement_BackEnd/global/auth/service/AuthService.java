@@ -80,13 +80,13 @@ public class AuthService {
         if (findLoginId.isPresent()) {
             Member member = findLoginId.get();
 
-            // 관리자 아이디로 로그인한 경우
-            if (loginRequestDTO.getLoginId().equals("admin") && loginRequestDTO.getPassword().equals("1234")) {
-                if (member.getRole() != Role.ADMIN) { // 현재 Role이 ADMIN이 아니면 변경
-                    member.setRole(Role.ADMIN);
-                    memberRepository.save(member); // 변경된 Role 저장
-                }
-            }
+//            // 관리자 아이디로 로그인한 경우
+//            if (loginRequestDTO.getLoginId().equals("admin") && loginRequestDTO.getPassword().equals("1234")) {
+//                if (member.getRole() != Role.ADMIN) { // 현재 Role이 ADMIN이 아니면 변경
+//                    member.setRole(Role.ADMIN);
+//                    memberRepository.save(member); // 변경된 Role 저장
+//                }
+//            }
 
             if (passwordEncoder.matches(loginRequestDTO.getPassword(), member.getPassword())) {
                 SecurityMemberDTO securityMemberDTO = SecurityMemberDTO.builder()

@@ -1,20 +1,16 @@
 package sunjin.DeptManagement_BackEnd.domain.order.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.springframework.cglib.core.Local;
 import sunjin.DeptManagement_BackEnd.domain.department.domain.Department;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.global.common.BaseEntity;
-import sunjin.DeptManagement_BackEnd.global.enums.ProductStatusType;
-import sunjin.DeptManagement_BackEnd.global.enums.ProductType;
+import sunjin.DeptManagement_BackEnd.global.enums.ApprovalStatus;
+import sunjin.DeptManagement_BackEnd.global.enums.OrderType;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @SuperBuilder
@@ -27,28 +23,35 @@ public class Order extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private ProductType productType;
-
-    @Column(nullable = false)
-    private int price;
+    private OrderType orderType;
 
     @Column(length = 100, nullable = false)
-    private String productName;
-
-    @Min(value = 1)
-    @Max(value = 100)
-    @Column(nullable = false)
-    private int quantity;
+    private String storeName;
 
     @Column(nullable = false)
     private int totalPrice;
 
+    private String description;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private ProductStatusType status;
+    private ApprovalStatus status;
 
     @Column
-    private LocalDateTime processDate;
+    private String rejectionDescription;
+
+    @Column(nullable = false)
+    private String receiptImgPath;
+
+    @Column
+    private String ImgURL;
+
+    @Column
+    private LocalDateTime firstProcDate;
+
+    @Column
+    private LocalDateTime secondProcDate;
+
 
     @JoinColumn(columnDefinition = "varchar(100)",nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,16 +61,16 @@ public class Order extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Department department;
 
-    public void updateInfo(ProductType productType, String productName, int price, int quantity, int totalPrice) {
-        this.productType = productType;
-        this.productName = productName;
-        this.price = price;
-        this.quantity = quantity;
+    public void updateInfo(OrderType productType, String productName, int totalPrice, String description) {
+        this.orderType = productType;
+        this.storeName = productName;
         this.totalPrice = totalPrice;
+        this.description = description;
     }
 
-    public void updateStatus(ProductStatusType orderStatus, LocalDateTime localDateTime) {
-        this.status = orderStatus;
-        this.processDate = localDateTime;
+    public void submit(ApprovalStatus status, LocalDateTime firstProcDate, LocalDateTime secondProcDate) {
+        this.status = status;
+        this.firstProcDate = firstProcDate;
+        this.secondProcDate = secondProcDate;
     }
 }

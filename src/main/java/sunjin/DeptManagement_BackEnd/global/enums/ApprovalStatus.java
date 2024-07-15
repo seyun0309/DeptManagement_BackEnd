@@ -3,21 +3,23 @@ package sunjin.DeptManagement_BackEnd.global.enums;
 import lombok.Getter;
 
 @Getter
-public enum ProductType {
-    FIXTURES("fixtures","비품"),
-    SNACK("snack","간식"),
-    ETC("etc", "기타");
+public enum ApprovalStatus {
+    WAIT("wait","wait"),
+    IN_FIRST_PROGRESS("in_first_progress", "progress"),
+    IN_SECOND_PROGRESS("in_second_progress", "progress"),
+    DENIED("denied","denied"),
+    APPROVE("approve","approve");
 
     private final String code ;
     private final String description;
 
-    ProductType(String code, String description) {
+    ApprovalStatus(String code, String description) {
         this.code = code;
         this.description = description;
     }
 
-    public static ProductType fromDescription(String description) {
-        for (ProductType type : ProductType.values()) {
+    public static ApprovalStatus fromDescription(String description) {
+        for (ApprovalStatus type : ApprovalStatus.values()) {
             if (type.description.equalsIgnoreCase(description)) {
                 return type;
             }

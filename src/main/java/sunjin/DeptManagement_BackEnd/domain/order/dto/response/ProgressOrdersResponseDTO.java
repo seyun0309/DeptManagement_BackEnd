@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class GetAllOrderDTO {
+public class ProgressOrdersResponseDTO {
     private Long orderId;
     private String applicantDeptName;
     private String applicant;
@@ -16,7 +16,5 @@ public class GetAllOrderDTO {
     private int totalPrice;
     private String description;
     private String orderStatus;
-    private String deniedDescription;
     private String createdAt;
-    private String updatedAt;
 }

@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class GetAllOrderDTO {
+public class DeniedOrdersResponseDTO {
     private Long orderId;
     private String applicantDeptName;
     private String applicant;
