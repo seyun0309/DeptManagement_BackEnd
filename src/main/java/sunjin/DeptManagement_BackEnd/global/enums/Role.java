@@ -4,8 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum Role {
-    ADMIN("ADMIN", "관리자"),
-    EMPLOYEE("EMPLOYEE", "사원");
+    EMPLOYEE("EMPLOYEE", "사원"),
+    TEAMLEADER("TEAMLEADER", "팀장"),
+    CENTERDIRECTOR("CENTERDIRECTOR", "센터장");
 
     private final String code ;
     private final String description;
