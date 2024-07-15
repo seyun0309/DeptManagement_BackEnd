@@ -9,14 +9,14 @@ import lombok.Getter;
 @Builder
 public class GetAllOrderDTO {
     private Long orderId;
-    private String latestTime;
-    private String productType;
-    private String productName;
-    private int price;
-    private int quantity;
-    private int totalPrice;
-    private String status;
-    private String processDate;
-    private String applicant;
     private String applicantDeptName;
+    private String applicant;
+    private String productType;
+    private String storeName;
+    private int totalPrice;
+    private String description;
+    private String orderStatus;
+    private String deniedDescription;
+    private String createdAt;
+    private String updatedAt;
 }
