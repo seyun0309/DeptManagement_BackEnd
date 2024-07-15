@@ -32,6 +32,7 @@ public enum ErrorCode {
     // Order
     ORDER_NOT_FOUND(404, "O001", "존재하는 주문이 없습니다"),
     ORDER_NOT_WAITING(400, "O002", "주문이 대기중일 때만 가능합니다"),
+    INVALID_STATUS(400, "O003", "올바른 주문 상태가 아닙니다."),
 
     // Receipt
     RECEIPT_NOT_FOUND(404, "R001", "존재하는 영수증이 없습니다"),
