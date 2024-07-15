@@ -3,21 +3,23 @@ package sunjin.DeptManagement_BackEnd.global.enums;
 import lombok.Getter;
 
 @Getter
-public enum ProductStatusType {
-    WAIT("wait","대기"),
-    DENIED("denied","반려"),
-    APPROVE("approve","승인");
+public enum ApprovalStatus {
+    WAIT("wait","wait"),
+    IN_FIRST_PROGRESS("in_first_progress", "progress"),
+    IN_SECOND_PROGRESS("in_second_progress", "progress"),
+    DENIED("denied","denied"),
+    APPROVE("approve","approve");
 
     private final String code ;
     private final String description;
 
-    ProductStatusType(String code, String description) {
+    ApprovalStatus(String code, String description) {
         this.code = code;
         this.description = description;
     }
 
-    public static ProductStatusType fromDescription(String description) {
-        for (ProductStatusType type : ProductStatusType.values()) {
+    public static ApprovalStatus fromDescription(String description) {
+        for (ApprovalStatus type : ApprovalStatus.values()) {
             if (type.description.equalsIgnoreCase(description)) {
                 return type;
             }
