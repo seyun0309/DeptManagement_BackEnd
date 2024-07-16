@@ -19,7 +19,14 @@ import sunjin.DeptManagement_BackEnd.domain.order.service.CommonOrderService;
 import sunjin.DeptManagement_BackEnd.domain.order.service.EmployeeOrderService;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -62,18 +69,16 @@ public class EmployeeOrderController {
 
     @GetMapping("/employee/img/{orderId}")
     @Operation(summary = "[사원] 수정 버튼 클릭", description = "수정 버튼을 클릭하면 해당 주문의 사진을 리턴합니다")
-    public ResponseEntity<Resource> getImg(@PathVariable("orderId") Long orderId) {
+    public ResponseEntity<byte[]> getImg(@PathVariable("orderId") Long orderId) throws IOException {
         try {
-            Resource resource = commonOrderService.getImg(orderId);
+            String imgPath = commonOrderService.getImg(orderId);
+            Path filePath = Paths.get(imgPath);
 
-            // 파일이 존재하고 읽을 수 있는 경우 리턴
-            return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG) // 이미지 타입에 따라 적절히 변경
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                    .body(resource);
-        } catch (BusinessException | IOException e) {
-            // BusinessException이 발생하면 예외 처리
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+            byte[] imageBytes = Files.readAllBytes(filePath);
+            System.out.println("imageBytes = " + Arrays.toString(imageBytes));
+            return ResponseEntity.ok(imageBytes);
+    } catch (IOException e) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to retrieve image", e);
         }
     }
 
