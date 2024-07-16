@@ -72,7 +72,7 @@ public class CommonOrderService {
             }
 
             String receiptImgPath = imageUploadDir + "/" + storedFileName;
-            String imgUrl = "http://localhost:8080/employee/img/" + storedFileName;
+            String imgUrl = storedFileName;
 
             // ProductType 변환
             OrderType productType = createOrderRequestDTO.getProductTypeEnum();
@@ -328,7 +328,7 @@ public class CommonOrderService {
         }
     }
 
-    public Resource getImg(Long orderId) throws IOException {
+    public String getImg(Long orderId) {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
@@ -336,22 +336,7 @@ public class CommonOrderService {
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
-            // 이미지 파일 경로 가져오기
-            String imagePath = order.getReceiptImgPath();
-            if (imagePath == null) {
-                throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
-            }
-
-            // 파일 경로를 리소스로 변환
-            Path filePath = Paths.get(imagePath);
-            Resource resource = new UrlResource(filePath.toUri());
-
-            // 파일이 존재하고 읽을 수 있는 경우 리턴
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
-            }
+            return order.getReceiptImgPath();
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
