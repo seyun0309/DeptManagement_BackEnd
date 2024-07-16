@@ -3,6 +3,11 @@ package sunjin.DeptManagement_BackEnd.domain.order.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +26,9 @@ import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -63,7 +71,7 @@ public class CommonOrderService {
             }
 
             String receiptImgPath = imageUploadDir + "/" + storedFileName;
-            String imgUrl = "http://localhost:8080/api/receipt/image/" + storedFileName;
+            String imgUrl = "http://localhost:8080/employee/img/" + storedFileName;
 
             // ProductType 변환
             OrderType productType = createOrderRequestDTO.getProductTypeEnum();
@@ -92,6 +100,35 @@ public class CommonOrderService {
     }
 
 
+
+    public GetOrderDetailResponseDTO getOrderDetails(Long orderId) {
+        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if(member.getRefreshToken() != null){
+            Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+            String orderType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
+            String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
+            String firstProcDateFormatted = order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
+            String secondProcDateFormmated = order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
+
+            return GetOrderDetailResponseDTO.builder()
+                    .DeptName(member.getDepartment().getDeptName())
+                    .applicantName(member.getUserName())
+                    .orderType(orderType)
+                    .storeName(order.getStoreName())
+                    .totalPrice(order.getTotalPrice())
+                    .description(order.getDescription())
+                    .createdAt(createDateFormatted)
+                    .firstProcDate(firstProcDateFormatted)
+                    .secondProcDate(secondProcDateFormmated)
+                    .rejectionDescription(order.getRejectionDescription())
+                    .build();
+        } else {
+            throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
+        }
+    }
 
     public List<?> getOrders(String status) {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
@@ -130,10 +167,14 @@ public class CommonOrderService {
                 String productType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
                 String orderStatus = null;
                 if (order.getStatus() != null) {
-                    if (order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS || order.getStatus() == ApprovalStatus.IN_SECOND_PROGRESS) {
-                        orderStatus = "처리중";
+                     if(order.getStatus() == ApprovalStatus.WAIT) {
+                        orderStatus = "대기";
+                    } else if(order.getStatus() == ApprovalStatus.DENIED) {
+                        orderStatus = "반려";
+                    } else if(order.getStatus() == ApprovalStatus.APPROVE) {
+                        orderStatus = "승인";
                     } else {
-                        orderStatus = order.getStatus().getDescription();
+                        orderStatus = "처리중";
                     }
                 }
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
@@ -256,6 +297,7 @@ public class CommonOrderService {
                     createOrderRequestDTO.getStoreName(),
                     createOrderRequestDTO.getTotalPrice(),
                     createOrderRequestDTO.getDescription());
+            orderRepository.save(order);
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
@@ -280,6 +322,44 @@ public class CommonOrderService {
 
             order.setDeletedAt(LocalDateTime.now());
             orderRepository.save(order);
+        } else {
+            throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
+        }
+    }
+
+    public Resource getImg(Long orderId) {
+        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
+
+        if (member.getRefreshToken() != null) {
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+            // 이미지 파일 경로 가져오기
+            String imagePath = order.getReceiptImgPath();
+            if (imagePath == null) {
+                throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
+            }
+
+            try {
+                // 파일 경로를 리소스로 변환
+                Path filePath = Paths.get(imagePath);
+                Resource resource = new UrlResource(filePath.toUri());
+
+                // 파일이 존재하고 읽을 수 있는 경우 리턴
+                if (resource.exists() || resource.isReadable()) {
+                    // MIME 타입 설정
+                    String contentType = Files.probeContentType(filePath);
+                    return ResponseEntity.ok()
+                            .contentType(MediaType.parseMediaType(contentType))
+                            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                            .body(resource).getBody();
+                } else {
+                    throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
+                }
+            } catch (IOException e) {
+                throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
+            }
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
