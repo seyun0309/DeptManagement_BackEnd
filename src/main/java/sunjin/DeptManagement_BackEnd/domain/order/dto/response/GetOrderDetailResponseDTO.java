@@ -3,6 +3,7 @@ package sunjin.DeptManagement_BackEnd.domain.order.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.core.io.Resource;
 
 @Getter
 @AllArgsConstructor
@@ -18,4 +19,5 @@ public class GetOrderDetailResponseDTO {
     private String firstProcDate;
     private String secondProcDate;
     private String rejectionDescription;
+    private Resource resource;
 }
