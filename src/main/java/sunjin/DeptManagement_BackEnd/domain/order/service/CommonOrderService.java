@@ -26,6 +26,7 @@ import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -327,7 +328,7 @@ public class CommonOrderService {
         }
     }
 
-    public Resource getImg(Long orderId) {
+    public Resource getImg(Long orderId) throws IOException {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
@@ -341,23 +342,14 @@ public class CommonOrderService {
                 throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
             }
 
-            try {
-                // 파일 경로를 리소스로 변환
-                Path filePath = Paths.get(imagePath);
-                Resource resource = new UrlResource(filePath.toUri());
+            // 파일 경로를 리소스로 변환
+            Path filePath = Paths.get(imagePath);
+            Resource resource = new UrlResource(filePath.toUri());
 
-                // 파일이 존재하고 읽을 수 있는 경우 리턴
-                if (resource.exists() || resource.isReadable()) {
-                    // MIME 타입 설정
-                    String contentType = Files.probeContentType(filePath);
-                    return ResponseEntity.ok()
-                            .contentType(MediaType.parseMediaType(contentType))
-                            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                            .body(resource).getBody();
-                } else {
-                    throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
-                }
-            } catch (IOException e) {
+            // 파일이 존재하고 읽을 수 있는 경우 리턴
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
                 throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
             }
         } else {
