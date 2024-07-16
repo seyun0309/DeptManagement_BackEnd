@@ -9,4 +9,5 @@ public class GeneratedTokenDTO {
     private String accessToken;
     private String refreshToken;
     private String userName;
+    private String role;
 }
