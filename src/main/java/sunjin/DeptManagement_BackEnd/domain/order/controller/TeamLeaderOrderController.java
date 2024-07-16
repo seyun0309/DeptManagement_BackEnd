@@ -15,6 +15,7 @@ import sunjin.DeptManagement_BackEnd.domain.order.dto.response.ProgressOrdersRes
 import sunjin.DeptManagement_BackEnd.domain.order.service.CommonOrderService;
 import sunjin.DeptManagement_BackEnd.domain.order.service.TeamLeaderOrderService;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -34,7 +35,7 @@ public class TeamLeaderOrderController {
 
     @GetMapping("/teamleader/{orderId}")
     @Operation(summary = "[팀장] 주문 상세 조회", description = "신청한 주문의 상세 내역을 조회합니다")
-    public ResponseEntity<GetOrderDetailResponseDTO> getOrder(@PathVariable("orderId") Long orderId) {
+    public ResponseEntity<GetOrderDetailResponseDTO> getOrder(@PathVariable("orderId") Long orderId) throws IOException {
         GetOrderDetailResponseDTO response = commonOrderService.getOrderDetails(orderId);
         return ResponseEntity.ok(response);
     }
