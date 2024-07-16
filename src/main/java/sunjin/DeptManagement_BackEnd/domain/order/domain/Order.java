@@ -73,4 +73,11 @@ public class Order extends BaseEntity {
         this.firstProcDate = firstProcDate;
         this.secondProcDate = secondProcDate;
     }
+
+    public void denied(ApprovalStatus status, LocalDateTime firstProcDate, LocalDateTime secondProcDate, String rejectionDescription) {
+        this.status = status;
+        this.firstProcDate = firstProcDate;
+        this.secondProcDate = secondProcDate;
+        this.rejectionDescription = rejectionDescription;
+    }
 }
