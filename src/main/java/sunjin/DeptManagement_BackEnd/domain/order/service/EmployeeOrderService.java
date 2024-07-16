@@ -13,7 +13,6 @@ import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.enums.ApprovalStatus;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -33,7 +32,8 @@ public class EmployeeOrderService {
         if(member.getRefreshToken() != null) {
             for(Long orderId : id) {
                 Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
-                order.submit(ApprovalStatus.IN_FIRST_PROGRESS, LocalDateTime.now(), null);
+                order.submit(ApprovalStatus.IN_FIRST_PROGRESS, null, null);
+                orderRepository.save(order);
             }
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
