@@ -6,16 +6,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.request.createOrderRequestDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.GetOrderDetailResponseDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.domain.order.service.CommonOrderService;
 import sunjin.DeptManagement_BackEnd.domain.order.service.EmployeeOrderService;
+import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -58,8 +62,19 @@ public class EmployeeOrderController {
 
     @GetMapping("/employee/img/{orderId}")
     @Operation(summary = "[사원] 수정 버튼 클릭", description = "수정 버튼을 클릭하면 해당 주문의 사진을 리턴합니다")
-    public void getImg(@PathVariable("orderId") Long orderId) {
-        commonOrderService.getImg(orderId);
+    public ResponseEntity<Resource> getImg(@PathVariable("orderId") Long orderId) {
+        try {
+            Resource resource = commonOrderService.getImg(orderId);
+
+            // 파일이 존재하고 읽을 수 있는 경우 리턴
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG) // 이미지 타입에 따라 적절히 변경
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (BusinessException | IOException e) {
+            // BusinessException이 발생하면 예외 처리
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
     }
 
     @PatchMapping("/employee/{orderId}")
