@@ -86,9 +86,10 @@ public class TeamLeaderOrderController {
 
     @PatchMapping("/teamleader/{orderId}")
     @Operation(summary = "[팀장] 주문 수정", description = "물품 타입, 물품 이름, 개당 가격, 수량를 입력하면 물품 수정이 진행됩니다")
-    public ResponseEntity<String> updateOrder(@RequestBody @Valid createOrderRequestDTO createOrderRequestDTO,
+    public ResponseEntity<String> updateOrder(@RequestPart(name = "image") MultipartFile image,
+                                              @RequestPart(name = "request") @Valid createOrderRequestDTO createOrderRequestDTO,
                                               @PathVariable("orderId") Long orderId){
-        commonOrderService.updateOrder(createOrderRequestDTO, orderId);
+        commonOrderService.updateOrder(image, createOrderRequestDTO, orderId);
         return ResponseEntity.ok("주문 수정에 성공했습니다.");
     }
 

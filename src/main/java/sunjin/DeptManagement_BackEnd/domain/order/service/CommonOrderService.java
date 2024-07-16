@@ -26,8 +26,6 @@ import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -51,16 +49,16 @@ public class CommonOrderService {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
-        String storedFileName;
         if(member.getRefreshToken() != null){
             // 이미지 저장
             if (image.isEmpty()) {
                 throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
             }
 
+            String storedFileName;
             Department department = member.getDepartment();
-
             String originalFilename = image.getOriginalFilename();
+
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             storedFileName = UUID.randomUUID().toString() + extension;
             File dest = new File(imageUploadDir + "/" + storedFileName);
@@ -100,9 +98,7 @@ public class CommonOrderService {
         }
     }
 
-
-
-    public GetOrderDetailResponseDTO getOrderDetails(Long orderId) {
+    public GetOrderDetailResponseDTO getOrderDetails(Long orderId) throws IOException {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -113,6 +109,7 @@ public class CommonOrderService {
             String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
             String firstProcDateFormatted = order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
             String secondProcDateFormmated = order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
+            Resource resource = getImg(orderId);
 
             return GetOrderDetailResponseDTO.builder()
                     .DeptName(member.getDepartment().getDeptName())
@@ -125,6 +122,10 @@ public class CommonOrderService {
                     .firstProcDate(firstProcDateFormatted)
                     .secondProcDate(secondProcDateFormmated)
                     .rejectionDescription(order.getRejectionDescription())
+                    .resource(ResponseEntity.ok()
+                            .contentType(MediaType.IMAGE_JPEG) // 이미지 타입에 따라 적절히 변경
+                            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                            .body(resource).getBody())
                     .build();
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
@@ -269,8 +270,37 @@ public class CommonOrderService {
         }
     }
 
+    public Resource getImg(Long orderId) throws IOException {
+        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
+
+        if (member.getRefreshToken() != null) {
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+            // 이미지 파일 경로 가져오기
+            String imagePath = order.getReceiptImgPath();
+            if (imagePath == null) {
+                throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
+            }
+
+            // 파일 경로를 리소스로 변환
+            Path filePath = Paths.get(imagePath);
+            Resource resource = new UrlResource(filePath.toUri());
+
+            // 파일이 존재하고 읽을 수 있는 경우 리턴
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
+            }
+        } else {
+            throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
+        }
+    }
+
     @Transactional
-    public void updateOrder(createOrderRequestDTO createOrderRequestDTO, Long orderId) {
+    public void updateOrder(MultipartFile image, createOrderRequestDTO createOrderRequestDTO, Long orderId) {
         //해당 주문 신청자와 현재 로그인한 사람 비교
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
@@ -293,11 +323,36 @@ public class CommonOrderService {
             // ProductType 변환
             OrderType productType = createOrderRequestDTO.getProductTypeEnum();
 
+            // 이미지 저장
+            if (image.isEmpty()) {
+                throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
+            }
+
+            String storedFileName;
+            Department department = member.getDepartment();
+            String originalFilename = image.getOriginalFilename();
+
+            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            storedFileName = UUID.randomUUID().toString() + extension;
+            File dest = new File(imageUploadDir + "/" + storedFileName);
+
+            try {
+                image.transferTo(dest);
+            } catch (IOException e) {
+                throw new RuntimeException("파일 저장 실패", e);
+            }
+
+            String receiptImgPath = imageUploadDir + "/" + storedFileName;
+            String imgUrl = storedFileName;
+
             order.updateInfo(
                     productType,
                     createOrderRequestDTO.getStoreName(),
                     createOrderRequestDTO.getTotalPrice(),
-                    createOrderRequestDTO.getDescription());
+                    createOrderRequestDTO.getDescription(),
+                    imgUrl,
+                    receiptImgPath);
+
             orderRepository.save(order);
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
@@ -323,20 +378,6 @@ public class CommonOrderService {
 
             order.setDeletedAt(LocalDateTime.now());
             orderRepository.save(order);
-        } else {
-            throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
-        }
-    }
-
-    public String getImg(Long orderId) {
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
-        Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
-
-        if (member.getRefreshToken() != null) {
-            Order order = orderRepository.findById(orderId)
-                    .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
-
-            return order.getReceiptImgPath();
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }

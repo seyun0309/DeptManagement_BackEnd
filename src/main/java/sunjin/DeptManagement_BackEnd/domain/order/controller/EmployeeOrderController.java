@@ -14,19 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.request.createOrderRequestDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.GetOrderDetailResponseDTO;
-import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.domain.order.service.CommonOrderService;
 import sunjin.DeptManagement_BackEnd.domain.order.service.EmployeeOrderService;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -36,11 +28,10 @@ import java.util.List;
 public class EmployeeOrderController {
     private final CommonOrderService commonOrderService;
     private final EmployeeOrderService employeeOrderService;
-    private final OrderRepository orderRepository;
 
     @PostMapping("/employee/orders")
     @Operation(summary = "[사원] 주문 신청", description = "물품 타입, 물품 이름, 개당 가격, 수량을 입력하면 주문 신청이 진행됩니다")
-    public ResponseEntity<String> createOrder(@RequestPart(required = false, name = "image") MultipartFile image,
+    public ResponseEntity<String> createOrder(@RequestPart(name = "image") MultipartFile image,
                                               @RequestPart(name = "request") @Valid createOrderRequestDTO createOrderRequestDTO){
         commonOrderService.createOrder(image, createOrderRequestDTO);
         return ResponseEntity.ok("주문에 성공했습니다.");
@@ -48,7 +39,7 @@ public class EmployeeOrderController {
 
     @GetMapping("/employee/{orderId}")
     @Operation(summary = "[사원] 주문 상세 조회", description = "신청한 주문의 상세 내역을 조회합니다")
-    public ResponseEntity<GetOrderDetailResponseDTO> getOrder(@PathVariable("orderId") Long orderId) {
+    public ResponseEntity<GetOrderDetailResponseDTO> getOrder(@PathVariable("orderId") Long orderId) throws IOException {
         GetOrderDetailResponseDTO response = commonOrderService.getOrderDetails(orderId);
         return ResponseEntity.ok(response);
     }
@@ -69,24 +60,27 @@ public class EmployeeOrderController {
 
     @GetMapping("/employee/img/{orderId}")
     @Operation(summary = "[사원] 수정 버튼 클릭", description = "수정 버튼을 클릭하면 해당 주문의 사진을 리턴합니다")
-    public ResponseEntity<byte[]> getImg(@PathVariable("orderId") Long orderId) throws IOException {
+    public ResponseEntity<Resource> getImg(@PathVariable("orderId") Long orderId) {
         try {
-            String imgPath = commonOrderService.getImg(orderId);
-            Path filePath = Paths.get(imgPath);
+            Resource resource = commonOrderService.getImg(orderId);
 
-            byte[] imageBytes = Files.readAllBytes(filePath);
-            System.out.println("imageBytes = " + Arrays.toString(imageBytes));
-            return ResponseEntity.ok(imageBytes);
-    } catch (IOException e) {
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to retrieve image", e);
+            // 파일이 존재하고 읽을 수 있는 경우 리턴
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG) // 이미지 타입에 따라 적절히 변경
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (BusinessException | IOException e) {
+            // BusinessException이 발생하면 예외 처리
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 
     @PatchMapping("/employee/{orderId}")
     @Operation(summary = "[사원] 주문 수정", description = "물품 타입, 물품 이름, 개당 가격, 수량를 입력하면 물품 수정이 진행됩니다")
-    public ResponseEntity<String> updateOrder(@RequestBody @Valid createOrderRequestDTO createOrderRequestDTO,
+    public ResponseEntity<String> updateOrder(@RequestPart(name = "image") MultipartFile image,
+                                              @RequestPart(name = "request") @Valid createOrderRequestDTO createOrderRequestDTO,
                                               @PathVariable("orderId") Long orderId){
-        commonOrderService.updateOrder(createOrderRequestDTO, orderId);
+        commonOrderService.updateOrder(image, createOrderRequestDTO, orderId);
         return ResponseEntity.ok("주문 수정에 성공했습니다.");
     }
 
