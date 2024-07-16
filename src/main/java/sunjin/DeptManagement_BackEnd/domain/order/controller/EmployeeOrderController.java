@@ -4,11 +4,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.repository.query.Param;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.request.createOrderRequestDTO;
+import sunjin.DeptManagement_BackEnd.domain.order.dto.response.GetOrderDetailResponseDTO;
+import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.domain.order.service.CommonOrderService;
 import sunjin.DeptManagement_BackEnd.domain.order.service.EmployeeOrderService;
 
@@ -18,9 +22,10 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class CommonOrderController {
+public class EmployeeOrderController {
     private final CommonOrderService commonOrderService;
     private final EmployeeOrderService employeeOrderService;
+    private final OrderRepository orderRepository;
 
     @PostMapping("/employee/orders")
     @Operation(summary = "[사원] 주문 신청", description = "물품 타입, 물품 이름, 개당 가격, 수량을 입력하면 주문 신청이 진행됩니다")
@@ -28,6 +33,13 @@ public class CommonOrderController {
                                               @RequestPart(name = "request") @Valid createOrderRequestDTO createOrderRequestDTO){
         commonOrderService.createOrder(image, createOrderRequestDTO);
         return ResponseEntity.ok("주문에 성공했습니다.");
+    }
+
+    @GetMapping("/employee/{orderId}")
+    @Operation(summary = "[사원] 주문 상세 조회", description = "신청한 주문의 상세 내역을 조회합니다")
+    public ResponseEntity<GetOrderDetailResponseDTO> getOrder(@PathVariable("orderId") Long orderId) {
+        GetOrderDetailResponseDTO response = commonOrderService.getOrderDetails(orderId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/employee/submit")
@@ -42,6 +54,12 @@ public class CommonOrderController {
     public ResponseEntity<List<?>> getAllOrder(@RequestParam(value = "status", required = false) String status) {
         List<?> response = commonOrderService.getOrders(status);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/employee/img/{orderId}")
+    @Operation(summary = "[사원] 수정 버튼 클릭", description = "수정 버튼을 클릭하면 해당 주문의 사진을 리턴합니다")
+    public void getImg(@PathVariable("orderId") Long orderId) {
+        commonOrderService.getImg(orderId);
     }
 
     @PatchMapping("/employee/{orderId}")
