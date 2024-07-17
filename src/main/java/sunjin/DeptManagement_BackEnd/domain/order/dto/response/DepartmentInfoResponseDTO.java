@@ -11,5 +11,6 @@ import java.util.List;
 @Builder
 public class DepartmentInfoResponseDTO {
     private String deptName;
+    private Long deptId;
     private List<MemberResponseDTO> members;
 }
