@@ -17,5 +17,5 @@ public class ApproveOrdersResponseDTO {
     private String description;
     private String orderStatus;
     private String createdAt;
-    private String updatedAt;
+    private String procDate;
 }
