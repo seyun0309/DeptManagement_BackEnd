@@ -241,6 +241,12 @@ public class CommonOrderService {
                             .build();
                     approveOrderDTOList.add(approveOrderDTO);
                 } else {
+                    String procDate = (order.getSecondProcDate() != null)
+                            ? order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"))
+                            : (order.getFirstProcDate() != null)
+                            ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"))
+                            : "-";
+
                     GetAllOrderDTO getAllOrderDTO = GetAllOrderDTO.builder()
                             .orderId(order.getId())
                             .applicantDeptName(applicantDeptName)
@@ -251,7 +257,7 @@ public class CommonOrderService {
                             .description(order.getDescription())
                             .orderStatus(orderStatus)
                             .createdAt(createDateFormatted)
-                            .updatedAt(modifiedDateFormmet)
+                            .procDate(procDate)
                             .build();
                     getAllOrderDTOList.add(getAllOrderDTO);
                 }
