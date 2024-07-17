@@ -31,7 +31,9 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/admin/**").hasAuthority("ADMIN");
+                    auth.requestMatchers("/employee/**").hasAuthority("EMPLOYEE");
+                    auth.requestMatchers("/teamleader/**").hasAuthority("TEAMLEADER");
+                    auth.requestMatchers("/centerdirector/**").hasAuthority("CENTERDIRECTOR");
                     auth.requestMatchers("/**").permitAll();
 
                     auth.anyRequest().authenticated();
