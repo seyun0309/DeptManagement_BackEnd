@@ -14,6 +14,7 @@ import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.GeneratedTokenDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.SecurityMemberDTO;
 import sunjin.DeptManagement_BackEnd.global.config.JwtProperties;
+import sunjin.DeptManagement_BackEnd.global.enums.Role;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -54,7 +55,7 @@ public class JwtProvider {
         String accessToken = generateToken(securityMemberDTO, ACCESS_TOKEN_PERIOD);
         String refreshToken = generateToken(securityMemberDTO, REFRESH_TOKEN_PERIOD);
         String userName = securityMemberDTO.getUserName();
-        String role = securityMemberDTO.getRole().getDescription();
+        Role role = securityMemberDTO.getRole();
 
         saveRefreshToken(securityMemberDTO.getId(), refreshToken);
 
