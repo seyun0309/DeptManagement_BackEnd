@@ -18,7 +18,6 @@ import java.util.List;
 public class CenterDirectorController {
     private final CenterDirectorService centerDirectorService;
 
-    //TODO 부서 이름, 사원 이름 리턴
     @GetMapping("/centerdirector/department")
     @Operation(summary = "[센터장] 부서 이름, 사원 이름을 리턴 -> 드롭다운에 적용")
     public ResponseEntity<List<DepartmentInfoResponseDTO>> getDepartment(){
@@ -26,7 +25,6 @@ public class CenterDirectorController {
         return ResponseEntity.ok(departmentInfoResponseDTOS);
     }
 
-    //TODO 각종 조회(전체, 부서, 이름, 현황...)
     @GetMapping("/centerdirector/department/details")
     @Operation(summary = "[센터장] 부서명, 사원명, 상태를 적절히 골라 조회 진행 후 DTO 리턴")
     public ResponseEntity<List<?>> getDepartmentDetails(
@@ -37,7 +35,6 @@ public class CenterDirectorController {
         return ResponseEntity.ok(response);
     }
 
-    //TODO 승인/반려 버튼 클릭 -> 2차 처리중 주문 리턴
     @GetMapping("/centerdirector/department/progress")
     @Operation(summary = "[센터장] 팀장이 사원의 주문을 승인한 것과 팀장이 센터장에게 상신한 목록들 가져옴")
     public ResponseEntity<List<ProgressOrdersResponseDTO>> getFirstProgressOrders() {
