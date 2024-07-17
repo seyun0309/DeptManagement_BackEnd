@@ -43,8 +43,8 @@ public class TeamLeaderOrderController {
 
     @GetMapping("/teamleader/submit")
     @Operation(summary = "[팀장] 본인의 주문을 센터장에게 상신")
-    public ResponseEntity<String> submitOrder(@RequestParam(value = "order", required = false) List<String> ids){
-        teamLeaderOrderService.submitOrder(ids.stream().map(Long::parseLong).collect(Collectors.toList()));
+    public ResponseEntity<String> submitOrder(@RequestParam(value = "order", required = false) List<Long> ids){
+        teamLeaderOrderService.submitOrder(ids);
         return ResponseEntity.ok("상신에 성공했습니다.");
     }
 

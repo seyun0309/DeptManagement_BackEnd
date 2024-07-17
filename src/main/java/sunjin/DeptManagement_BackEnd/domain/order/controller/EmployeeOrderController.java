@@ -47,8 +47,8 @@ public class EmployeeOrderController {
 
     @GetMapping("/employee/submit")
     @Operation(summary = "[사원] 본인의 주문을 팀장에게 상신", description = "주문을 선택하여 팀장에게 상신합니다.")
-    public ResponseEntity<String> submitOrder(@RequestParam(value = "order", required = false) List<String> ids){
-        employeeOrderService.submitOrder(ids.stream().map(Long::parseLong).collect(Collectors.toList()));
+    public ResponseEntity<String> submitOrder(@RequestParam(value = "order", required = false) List<Long> ids){
+        employeeOrderService.submitOrder(ids);
         return ResponseEntity.ok("상신에 성공했습니다.");
     }
 

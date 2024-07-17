@@ -30,10 +30,10 @@ public class CenterDirectorController {
     @GetMapping("/centerdirector/department/details")
     @Operation(summary = "[센터장] 부서명, 사원명, 상태를 적절히 골라 조회 진행 후 DTO 리턴")
     public ResponseEntity<List<?>> getDepartmentDetails(
-            @RequestParam(value = "department", required = false) String departmentId,
-            @RequestParam(value = "member", required = false) String memberId,
+            @RequestParam(value = "department", required = false) Long departmentId,
+            @RequestParam(value = "member", required = false) Long memberId,
             @RequestParam(value = "status", required = false) String status){
-        List<?> response = centerDirectorService.getDepartmentDetails(Long.parseLong(departmentId), Long.parseLong(memberId), status);
+        List<?> response = centerDirectorService.getDepartmentDetails(departmentId, memberId, status);
         return ResponseEntity.ok(response);
     }
 
