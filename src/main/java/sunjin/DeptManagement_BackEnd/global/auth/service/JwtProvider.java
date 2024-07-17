@@ -54,7 +54,7 @@ public class JwtProvider {
         String accessToken = generateToken(securityMemberDTO, ACCESS_TOKEN_PERIOD);
         String refreshToken = generateToken(securityMemberDTO, REFRESH_TOKEN_PERIOD);
         String userName = securityMemberDTO.getUserName();
-        String role = securityMemberDTO.getRole().toString();
+        String role = securityMemberDTO.getRole().getDescription();
 
         saveRefreshToken(securityMemberDTO.getId(), refreshToken);
 

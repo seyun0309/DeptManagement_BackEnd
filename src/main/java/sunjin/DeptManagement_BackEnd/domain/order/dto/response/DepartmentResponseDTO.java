@@ -4,13 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.List;
-
 @Getter
 @AllArgsConstructor
 @Builder
-public class DepartmentInfoResponseDTO {
+public class DepartmentResponseDTO {
+    private Long departmentId;
     private String deptName;
-    private Long deptId;
-    private List<MemberResponseDTO> members;
 }

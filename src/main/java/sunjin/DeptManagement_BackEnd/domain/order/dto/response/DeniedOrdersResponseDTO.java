@@ -18,5 +18,5 @@ public class DeniedOrdersResponseDTO {
     private String orderStatus;
     private String deniedDescription;
     private String createdAt;
-    private String updatedAt;
+    private String procDate;
 }

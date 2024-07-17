@@ -3,6 +3,9 @@ package sunjin.DeptManagement_BackEnd.domain.order.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import sunjin.DeptManagement_BackEnd.domain.department.domain.Department;
+import sunjin.DeptManagement_BackEnd.domain.department.repository.DepartmentRepository;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
 import sunjin.DeptManagement_BackEnd.domain.order.domain.Order;
@@ -12,7 +15,6 @@ import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
 import sunjin.DeptManagement_BackEnd.global.enums.ApprovalStatus;
 import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
-import sunjin.DeptManagement_BackEnd.global.enums.Role;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
 import java.time.LocalDateTime;
@@ -20,77 +22,97 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TeamLeaderOrderService {
-
+public class CenterDirectorService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
+    private final DepartmentRepository departmentRepository;
     private final JwtProvider jwtProvider;
 
-    public void submitOrder(List<Long> id) {
+    public List<DepartmentInfoResponseDTO> getDepartmentInfo() {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
-        if(member.getRefreshToken() != null) {
-            for(Long orderId : id) {
-                Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
-                order.submit(ApprovalStatus.IN_SECOND_PROGRESS, null, LocalDateTime.now());
-                orderRepository.save(order);
+        if (member.getRefreshToken() != null) {
+            List<Department> allDepartment = departmentRepository.findAll();
+            List<DepartmentInfoResponseDTO> departmentInfoList = new ArrayList<>();
+
+            for (Department department : allDepartment) {
+                String deptName = department.getDeptName();
+                Long deptId = department.getId();
+                List<Member> memberListByDeptId = memberRepository.findByDepartmentId(department.getId());
+                List<MemberResponseDTO> memberInfoList = new ArrayList<>();
+                for (Member member1 : memberListByDeptId) {
+                    MemberResponseDTO memberInfoDTO = MemberResponseDTO.builder()
+                            .memberId(member1.getId())
+                            .memberName(member1.getUserName())
+                            .build();
+                    memberInfoList.add(memberInfoDTO);
+                }
+
+                DepartmentInfoResponseDTO departmentInfoDTO = DepartmentInfoResponseDTO.builder()
+                        .deptName(deptName)
+                        .deptId(deptId)
+                        .members(memberInfoList)
+                        .build();
+                departmentInfoList.add(departmentInfoDTO);
             }
+            return departmentInfoList;
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
     }
-
-    public DepartmentInfoResponseDTO getDepartmentInfo() {
+    public List<?> getDepartmentDetails(Long departmentId, Long memberId, String status) {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
-        Long departmentId = member.getDepartment().getId();
-        List<Member> employeeList = memberRepository.findByDepartmentId(departmentId, Role.EMPLOYEE);
-
-        if (employeeList.isEmpty()) {
-            throw new BusinessException(ErrorCode.DEPARTMENT_NOT_FOUND);
-        }
-
-        List<MemberResponseDTO> memberResponseDTOList = employeeList.stream()
-                .map(emp -> MemberResponseDTO.builder()
-                        .memberId(emp.getId())
-                        .memberName(emp.getUserName())
-                        .build())
-                .collect(Collectors.toList());
-
-        return DepartmentInfoResponseDTO.builder()
-                .deptName(member.getDepartment().getDeptName())
-                .deptId(member.getDepartment().getId())
-                .members(memberResponseDTOList)
-                .build();
-    }
-
-    public List<?> getDepartmentDetails(Long id, String status) {
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
-        Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
-
-        if(member.getRefreshToken() != null) {
+        if (member.getRefreshToken() != null) {
             List<Order> orders;
-            if(id != null && status != null) {
+            if (departmentId != null && memberId != null && status != null) {
+                // Case 1: departmentId, memberId, and status are all not null
                 if("progress".equalsIgnoreCase(status)) {
                     List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS);
-                    orders = orderRepository.findByMemberIdAndStatusIn(id, progressStatuses);
+                    orders = orderRepository.findByDepartmentIdAndMemberAndStatusIn(departmentId, memberId, progressStatuses);
                 } else {
                     ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
-                    orders = orderRepository.findAllByMemberIdAndStatus(id, approvalStatus);
+                    orders = orderRepository.findByDepartmentIdAndMemberAndStatus(departmentId, memberId, approvalStatus);
                 }
-            } else if(id == null && status != null) {
+            } else if (departmentId != null && memberId != null) {
+                // Case 2: departmentId and memberId are not null, status is null
+                orders = orderRepository.findByDepartmentIdAndMember(departmentId, memberId);
+            } else if (departmentId != null && status != null) {
+                // Case 3: departmentId is not null, memberId is null, status is not null
+                if("progress".equalsIgnoreCase(status)) {
+                    List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS);
+                    orders = orderRepository.findByDepartmentIdAndStatusIn(departmentId, progressStatuses);
+                } else {
+                    ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
+                    orders = orderRepository.findByDepartmentIdAndStatus(departmentId, approvalStatus);
+                }
+            } else if (departmentId != null) {
+                // Case 4: departmentId is not null, memberId and status are null
+                orders = orderRepository.findByDepartmentId(departmentId);
+            } else if (memberId != null && status != null) {
+                // Case 5: departmentId is null, memberId and status are not null
+                if("progress".equalsIgnoreCase(status)) {
+                    List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS);
+                    orders = orderRepository.findByMemberIdAndStatusIn(memberId, progressStatuses);
+                } else {
+                    ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
+                    orders = orderRepository.findAllByMemberIdAndStatus(memberId, approvalStatus);
+                }
+            } else if (memberId != null) {
+                // Case 6: departmentId is null, memberId is not null, status is null
+                orders = orderRepository.findAllByMemberId(memberId);
+            } else if (status != null) {
+                // Case 7: departmentId and memberId are null, status is not null
                 ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
                 orders = orderRepository.findByStatus(approvalStatus);
-            } else if(id != null) {
-                orders = orderRepository.findAllByMemberId(id);
             } else {
+                // Case 8: departmentId, memberId, and status are all null
                 orders = orderRepository.findAll();
             }
 
@@ -214,12 +236,13 @@ public class TeamLeaderOrderService {
         }
     }
 
-    public List<ProgressOrdersResponseDTO> getFirstProgressOrders() {
+    @Transactional
+    public List<ProgressOrdersResponseDTO> getSecondProgressOrders() {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (member.getRefreshToken() != null) {
-            List<Order> orders = orderRepository.findByStatusIsProgress(ApprovalStatus.IN_FIRST_PROGRESS);
+            List<Order> orders = orderRepository.findByStatusIsProgress(ApprovalStatus.IN_SECOND_PROGRESS);
             List<ProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
 
             for (Order order : orders) {
@@ -228,7 +251,7 @@ public class TeamLeaderOrderService {
 
                 // 주문 종류, 주문 상태, 신청자, 부서 이름 string으로 포맷
                 String productType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
-                String orderStatus = "1차 처리중";
+                String orderStatus = "2차 처리중";
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
                 String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
 
@@ -251,16 +274,16 @@ public class TeamLeaderOrderService {
         }
     }
 
-    public void approveOrRejectOrderByTeamLeader(Long orderId, ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
+    public void approveOrRejectOrderByCenterDirector(Long orderId, ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (member.getRefreshToken() != null) {
             Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
             if(approveOrDeniedRequestDTO.isApproved()) {
-                order.denied(ApprovalStatus.DENIED, LocalDateTime.now(), order.getSecondProcDate(), approveOrDeniedRequestDTO.getDeniedDescription());
+                order.denied(ApprovalStatus.DENIED, order.getFirstProcDate(), LocalDateTime.now(), approveOrDeniedRequestDTO.getDeniedDescription());
             } else {
-                order.submit(ApprovalStatus.IN_SECOND_PROGRESS, LocalDateTime.now(), order.getSecondProcDate());
+                order.submit(ApprovalStatus.APPROVE, order.getFirstProcDate(), LocalDateTime.now());
             }
             orderRepository.save(order);
         } else {
