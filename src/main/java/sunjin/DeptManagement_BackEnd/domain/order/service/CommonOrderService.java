@@ -147,7 +147,8 @@ public class CommonOrderService {
                     orders = orderRepository.findAllByMemberIdAndStatus(member.getId(), approvalStatus);
                 }
             } else {
-                orders = orderRepository.findAllByMemberId(member.getId());
+                List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
+                orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), progressStatuses);
             }
 
 
@@ -164,6 +165,7 @@ public class CommonOrderService {
                 if (order.getModifiedAt() != null) {
                     modifiedDateFormmet = order.getModifiedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                 }
+                String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
 
                 // 주문 종류, 주문 상태, 신청자, 부서 이름 string으로 포맷
                 String productType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
@@ -220,7 +222,7 @@ public class CommonOrderService {
                             .orderStatus(orderStatus)
                             .deniedDescription(order.getRejectionDescription())
                             .createdAt(createDateFormatted)
-                            .updatedAt(modifiedDateFormmet)
+                            .procDate(procDate)
                             .build();
                     deniedOrderDTOList.add(deniedOrderDTO);
                 } else if ("approve".equalsIgnoreCase(status) && order.getStatus() == ApprovalStatus.APPROVE) {
@@ -234,7 +236,7 @@ public class CommonOrderService {
                             .description(order.getDescription())
                             .orderStatus(orderStatus)
                             .createdAt(createDateFormatted)
-                            .updatedAt(modifiedDateFormmet)
+                            .procDate(procDate)
                             .build();
                     approveOrderDTOList.add(approveOrderDTO);
                 } else {
