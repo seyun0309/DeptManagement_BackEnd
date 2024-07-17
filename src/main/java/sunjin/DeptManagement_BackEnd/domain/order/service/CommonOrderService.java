@@ -165,7 +165,6 @@ public class CommonOrderService {
                 if (order.getModifiedAt() != null) {
                     modifiedDateFormmet = order.getModifiedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                 }
-                String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
 
                 // 주문 종류, 주문 상태, 신청자, 부서 이름 string으로 포맷
                 String productType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
@@ -211,6 +210,7 @@ public class CommonOrderService {
                             .build();
                     progressOrderDTOList.add(progressOrderDTO);
                 } else if ("denied".equalsIgnoreCase(status) && order.getStatus() == ApprovalStatus.DENIED) {
+                    String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                     DeniedOrdersResponseDTO deniedOrderDTO = DeniedOrdersResponseDTO.builder()
                             .orderId(order.getId())
                             .applicantDeptName(applicantDeptName)
@@ -226,6 +226,7 @@ public class CommonOrderService {
                             .build();
                     deniedOrderDTOList.add(deniedOrderDTO);
                 } else if ("approve".equalsIgnoreCase(status) && order.getStatus() == ApprovalStatus.APPROVE) {
+                    String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                     ApproveOrdersResponseDTO approveOrderDTO = ApproveOrdersResponseDTO.builder()
                             .orderId(order.getId())
                             .applicantDeptName(applicantDeptName)
