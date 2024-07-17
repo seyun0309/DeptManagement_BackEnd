@@ -3,6 +3,7 @@ package sunjin.DeptManagement_BackEnd.domain.order.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
 import sunjin.DeptManagement_BackEnd.domain.order.domain.Order;
@@ -31,12 +32,12 @@ public class TeamLeaderOrderService {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
-    public void submitOrder(List<Long> id) {
+    public void submitOrder(List<Long> ids) {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
         if(member.getRefreshToken() != null) {
-            for(Long orderId : id) {
+            for(Long orderId : ids) {
                 Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
                 order.submit(ApprovalStatus.IN_SECOND_PROGRESS, null, LocalDateTime.now());
                 orderRepository.save(order);
@@ -258,6 +259,7 @@ public class TeamLeaderOrderService {
         }
     }
 
+    @Transactional
     public void approveOrRejectOrderByTeamLeader(Long orderId, ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));

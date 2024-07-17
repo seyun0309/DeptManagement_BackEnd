@@ -15,6 +15,7 @@ import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
 import sunjin.DeptManagement_BackEnd.global.enums.ApprovalStatus;
 import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
+import sunjin.DeptManagement_BackEnd.global.enums.Role;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
 import java.time.LocalDateTime;
@@ -46,11 +47,13 @@ public class CenterDirectorService {
                 List<Member> memberListByDeptId = memberRepository.findByDepartmentId(department.getId());
                 List<MemberResponseDTO> memberInfoList = new ArrayList<>();
                 for (Member member1 : memberListByDeptId) {
-                    MemberResponseDTO memberInfoDTO = MemberResponseDTO.builder()
-                            .memberId(member1.getId())
-                            .memberName(member1.getUserName())
-                            .build();
-                    memberInfoList.add(memberInfoDTO);
+                    if(member1.getRole() != Role.CENTERDIRECTOR) {
+                        MemberResponseDTO memberInfoDTO = MemberResponseDTO.builder()
+                                .memberId(member1.getId())
+                                .memberName(member1.getUserName())
+                                .build();
+                        memberInfoList.add(memberInfoDTO);
+                    }
                 }
 
                 DepartmentInfoResponseDTO departmentInfoDTO = DepartmentInfoResponseDTO.builder()
@@ -281,6 +284,7 @@ public class CenterDirectorService {
         }
     }
 
+    @Transactional
     public void approveOrRejectOrderByCenterDirector(Long orderId, ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));

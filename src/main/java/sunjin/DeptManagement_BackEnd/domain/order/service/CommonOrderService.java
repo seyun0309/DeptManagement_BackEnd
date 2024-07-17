@@ -338,7 +338,6 @@ public class CommonOrderService {
             }
 
             String storedFileName;
-            Department department = member.getDepartment();
             String originalFilename = image.getOriginalFilename();
 
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
