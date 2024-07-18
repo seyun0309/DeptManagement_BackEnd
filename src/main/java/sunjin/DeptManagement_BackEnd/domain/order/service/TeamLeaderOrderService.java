@@ -92,7 +92,8 @@ public class TeamLeaderOrderService {
             } else if(memberId != null) {
                 orders = orderRepository.findAllByMemberId(memberId);
             } else {
-                orders = orderRepository.findAll();
+                List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
+                orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), progressStatuses);
             }
 
             List<WaitOrdersResponseDTO> waitOrderDTOList = new ArrayList<>();
