@@ -76,39 +76,24 @@ public class CenterDirectorService {
             List<Order> orders;
             if (departmentId != null && memberId != null && status != null) {
                 // Case 1: departmentId, memberId, and status are all not null
-                if("progress".equalsIgnoreCase(status)) {
-                    List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS);
-                    orders = orderRepository.findByDepartmentIdAndMemberAndStatusIn(departmentId, memberId, progressStatuses);
-                } else {
-                    ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
-                    orders = orderRepository.findByDepartmentIdAndMemberAndStatus(departmentId, memberId, approvalStatus);
-                }
+                ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
+                orders = orderRepository.findByDepartmentIdAndMemberAndStatus(departmentId, memberId, approvalStatus);
             } else if (departmentId != null && memberId != null) {
                 // Case 2: departmentId and memberId are not null, status is null
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
                 orders = orderRepository.findByDepartmentIdAndMemberAndStatusIn(departmentId, memberId, progressStatuses);
             } else if (departmentId != null && status != null) {
                 // Case 3: departmentId is not null, memberId is null, status is not null
-                if("progress".equalsIgnoreCase(status)) {
-                    List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS);
-                    orders = orderRepository.findByDepartmentIdAndStatusIn(departmentId, progressStatuses);
-                } else {
-                    ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
-                    orders = orderRepository.findByDepartmentIdAndStatus(departmentId, approvalStatus);
-                }
+                ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
+                orders = orderRepository.findByDepartmentIdAndStatus(departmentId, approvalStatus);
             } else if (departmentId != null) {
                 // Case 4: departmentId is not null, memberId and status are null
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
                 orders = orderRepository.findByDepartmentIdAndStatusIn(departmentId, progressStatuses);
             } else if (memberId != null && status != null) {
                 // Case 5: departmentId is null, memberId and status are not null
-                if("progress".equalsIgnoreCase(status)) {
-                    List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS);
-                    orders = orderRepository.findByMemberIdAndStatusIn(memberId, progressStatuses);
-                } else {
-                    ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
-                    orders = orderRepository.findAllByMemberIdAndStatus(memberId, approvalStatus);
-                }
+                ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
+                orders = orderRepository.findAllByMemberIdAndStatus(memberId, approvalStatus);
             } else if (memberId != null) {
                 // Case 6: departmentId is null, memberId is not null, status is null
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
@@ -147,8 +132,10 @@ public class CenterDirectorService {
                         orderStatus = "반려";
                     } else if(order.getStatus() == ApprovalStatus.APPROVE) {
                         orderStatus = "승인";
+                    } else if(order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS){
+                        orderStatus = "1차 처리중";
                     } else {
-                        orderStatus = "처리중";
+                        orderStatus = "2차 처리중";
                     }
                 }
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;

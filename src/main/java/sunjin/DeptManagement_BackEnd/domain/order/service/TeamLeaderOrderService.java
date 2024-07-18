@@ -80,21 +80,11 @@ public class TeamLeaderOrderService {
         if(member.getRefreshToken() != null) {
             List<Order> orders;
             if(memberId != null && status != null) {
-                if("progress".equalsIgnoreCase(status)) {
-                    List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS);
-                    orders = orderRepository.findByMemberIdAndStatusIn(memberId, progressStatuses);
-                } else {
-                    ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
-                    orders = orderRepository.findAllByMemberIdAndStatus(memberId, approvalStatus);
-                }
+                ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
+                orders = orderRepository.findAllByMemberIdAndStatus(memberId, approvalStatus);
             } else if(memberId == null && status != null) {
-                if("progress".equalsIgnoreCase(status)) {
-                    List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS);
-                    orders = orderRepository.findByDepartmentIdAndStatusIn(member.getDepartment().getId(), progressStatuses);
-                } else {
-                    ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
-                    orders = orderRepository.findByStatus(approvalStatus);
-                }
+                ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
+                orders = orderRepository.findByDepartmentIdAndStatus(member.getDepartment().getId(), approvalStatus);
             } else if(memberId != null) {
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
                 orders = orderRepository.findAllByMemberIdAndStatusIn(memberId, progressStatuses);
@@ -127,8 +117,10 @@ public class TeamLeaderOrderService {
                         orderStatus = "반려";
                     } else if(order.getStatus() == ApprovalStatus.APPROVE) {
                         orderStatus = "승인";
+                    } else if(order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS){
+                        orderStatus = "1차 처리중";
                     } else {
-                        orderStatus = "처리중";
+                        orderStatus = "2차 처리중";
                     }
                 }
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
