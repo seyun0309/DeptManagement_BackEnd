@@ -139,13 +139,8 @@ public class CommonOrderService {
         if (member.getRefreshToken() != null) {
             List<Order> orders;
             if (status != null) {
-                if ("progress".equalsIgnoreCase(status)) {
-                    List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS);
-                    orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), progressStatuses);
-                } else {
-                    ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
-                    orders = orderRepository.findAllByMemberIdAndStatus(member.getId(), approvalStatus);
-                }
+                ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
+                orders = orderRepository.findAllByMemberIdAndStatus(member.getId(), approvalStatus);
             } else {
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
                 orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), progressStatuses);
@@ -161,10 +156,6 @@ public class CommonOrderService {
             for (Order order : orders) {
                 // 시간 string으로 포맷
                 String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
-                String modifiedDateFormmet = "-";
-                if (order.getModifiedAt() != null) {
-                    modifiedDateFormmet = order.getModifiedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
-                }
 
                 // 주문 종류, 주문 상태, 신청자, 부서 이름 string으로 포맷
                 String productType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
@@ -176,9 +167,11 @@ public class CommonOrderService {
                         orderStatus = "반려";
                     } else if(order.getStatus() == ApprovalStatus.APPROVE) {
                         orderStatus = "승인";
+                    } else if(order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS){
+                        orderStatus = "1차 처리중";
                     } else {
-                        orderStatus = "처리중";
-                    }
+                         orderStatus = "2차 처리중";
+                     }
                 }
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
                 String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
