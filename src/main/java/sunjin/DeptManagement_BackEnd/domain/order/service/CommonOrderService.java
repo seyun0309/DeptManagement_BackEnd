@@ -156,10 +156,6 @@ public class CommonOrderService {
             for (Order order : orders) {
                 // 시간 string으로 포맷
                 String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
-                String modifiedDateFormmet = "-";
-                if (order.getModifiedAt() != null) {
-                    modifiedDateFormmet = order.getModifiedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
-                }
 
                 // 주문 종류, 주문 상태, 신청자, 부서 이름 string으로 포맷
                 String productType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
