@@ -17,8 +17,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.member.id = :memberId AND o.status = :status")
     List<Order> findAllByMemberIdAndStatus(@Param("memberId") Long memberId, @Param("status") ApprovalStatus status);
 
-    @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.member.id = :memberId AND o.status IN :status")
-    List<Order> findByMemberIdAndStatusIn(@Param("memberId") Long memberId, @Param("status") List<ApprovalStatus> status);
+    @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.department.id = :departmentId AND o.status IN :status")
+    List<Order> findByMemberIdAndStatusIn(@Param("departmentId") Long departmentId, @Param("status") List<ApprovalStatus> status);
 
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.status = :status")
     List<Order> findByStatus(@Param("status") ApprovalStatus status);
@@ -43,4 +43,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.department.id = :departmentId AND o.member.id = :memberId AND o.status = :status")
     List<Order> findByDepartmentIdAndMemberAndStatus(@Param("departmentId") Long departmentId, @Param("memberId") Long memberId, @Param("status") ApprovalStatus status);
+
+    @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.department.id = :departmentId AND o.status IN :status")
+    List<Order> findByStatusIn(@Param("status") List<ApprovalStatus> status);
 }
