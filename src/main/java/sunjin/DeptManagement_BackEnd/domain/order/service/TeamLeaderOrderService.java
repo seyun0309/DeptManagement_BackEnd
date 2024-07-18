@@ -72,25 +72,25 @@ public class TeamLeaderOrderService {
                 .build();
     }
 
-    public List<?> getDepartmentDetails(Long id, String status) {
+    public List<?> getDepartmentDetails(Long memberId, String status) {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         if(member.getRefreshToken() != null) {
             List<Order> orders;
-            if(id != null && status != null) {
+            if(memberId != null && status != null) {
                 if("progress".equalsIgnoreCase(status)) {
                     List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS);
-                    orders = orderRepository.findByMemberIdAndStatusIn(id, progressStatuses);
+                    orders = orderRepository.findByMemberIdAndStatusIn(memberId, progressStatuses);
                 } else {
                     ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
-                    orders = orderRepository.findAllByMemberIdAndStatus(id, approvalStatus);
+                    orders = orderRepository.findAllByMemberIdAndStatus(memberId, approvalStatus);
                 }
-            } else if(id == null && status != null) {
+            } else if(memberId == null && status != null) {
                 ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
                 orders = orderRepository.findByStatus(approvalStatus);
-            } else if(id != null) {
-                orders = orderRepository.findAllByMemberId(id);
+            } else if(memberId != null) {
+                orders = orderRepository.findAllByMemberId(memberId);
             } else {
                 orders = orderRepository.findAll();
             }
