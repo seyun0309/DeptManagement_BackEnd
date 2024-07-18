@@ -105,7 +105,7 @@ public class CenterDirectorService {
             } else {
                 // Case 8: departmentId, memberId, and status are all null
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
-                orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), progressStatuses);
+                orders = orderRepository.findByStatusIn(progressStatuses);
             }
 
             List<WaitOrdersResponseDTO> waitOrderDTOList = new ArrayList<>();
