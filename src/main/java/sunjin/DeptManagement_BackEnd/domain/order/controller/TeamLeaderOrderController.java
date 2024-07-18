@@ -17,7 +17,6 @@ import sunjin.DeptManagement_BackEnd.domain.order.service.TeamLeaderOrderService
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -66,9 +65,9 @@ public class TeamLeaderOrderController {
     @GetMapping("/teamleader/department/details")
     @Operation(summary = "[팀장] 사원명, 상태를 적절히 골라 조회 진행 후 DTO 리턴")
     public ResponseEntity<List<?>> getDepartmentDetails(
-            @RequestParam(value = "member", required = false) String memberId,
+            @RequestParam(value = "member", required = false) Long memberId,
             @RequestParam(value = "status", required = false) String status){
-        List<?> response = teamLeaderOrderService.getDepartmentDetails(Long.parseLong(memberId), status);
+        List<?> response = teamLeaderOrderService.getDepartmentDetails(memberId, status);
         return ResponseEntity.ok(response);
     }
 
