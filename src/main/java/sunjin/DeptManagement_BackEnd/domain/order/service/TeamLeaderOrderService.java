@@ -89,16 +89,17 @@ public class TeamLeaderOrderService {
             } else if(memberId == null && status != null) {
                 if("progress".equalsIgnoreCase(status)) {
                     List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS);
-                    orders = orderRepository.findByStatusIn(progressStatuses);
+                    orders = orderRepository.findByDepartmentIdAndStatusIn(member.getDepartment().getId(), progressStatuses);
                 } else {
                     ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
                     orders = orderRepository.findByStatus(approvalStatus);
                 }
             } else if(memberId != null) {
-                orders = orderRepository.findAllByMemberId(memberId);
+                List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
+                orders = orderRepository.findAllByMemberIdAndStatusIn(memberId, progressStatuses);
             } else {
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
-                orders = orderRepository.findByMemberIdAndStatusIn(member.getDepartment().getId(), progressStatuses);
+                orders = orderRepository.findByDepartmentIdAndStatusIn(member.getDepartment().getId(), progressStatuses);
             }
 
             List<WaitOrdersResponseDTO> waitOrderDTOList = new ArrayList<>();
