@@ -54,8 +54,8 @@ public class EmployeeOrderController {
 
     @GetMapping("/employee/orders")
     @Operation(summary = "[사원] 본인의 주문을 전체 및 상태별 조회", description = "전체 및 상태별 조회가 진행됩니다")
-    public ResponseEntity<List<?>> getAllOrder(@RequestParam(value = "status", required = false) String status) {
-        List<?> response = commonOrderService.getOrders(status);
+    public ResponseEntity<List<?>> getAllOrder(@RequestParam(value = "status", required = false) List<String> statuses) {
+        List<?> response = commonOrderService.getOrders(statuses);
         return ResponseEntity.ok(response);
     }
 
