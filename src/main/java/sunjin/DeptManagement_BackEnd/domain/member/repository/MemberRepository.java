@@ -23,6 +23,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT m FROM Member m WHERE m.department.id = :departmentId")
     List<Member> findByDepartmentId(@Param("departmentId") Long departmentId);
 
-    @Query("SELECT m FROM Member m WHERE m.department.id = :departmentId AND m.role = :role")
-    List<Member> findByDepartmentId(@Param("departmentId") Long departmentId, @Param("role") Role role);
+    @Query("SELECT m FROM Member m WHERE m.department.id = :departmentId AND m.role IN :role")
+    List<Member> findByDepartmentId(@Param("departmentId") Long departmentId, @Param("role") List<Role> role);
 }

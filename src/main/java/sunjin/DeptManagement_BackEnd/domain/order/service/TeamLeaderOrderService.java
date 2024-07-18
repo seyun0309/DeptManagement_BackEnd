@@ -52,7 +52,8 @@ public class TeamLeaderOrderService {
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
         Long departmentId = member.getDepartment().getId();
-        List<Member> employeeList = memberRepository.findByDepartmentId(departmentId, Role.EMPLOYEE);
+        List<Role> role = Arrays.asList(Role.EMPLOYEE, Role.TEAMLEADER);
+        List<Member> employeeList = memberRepository.findByDepartmentId(departmentId, role);
 
         if (employeeList.isEmpty()) {
             throw new BusinessException(ErrorCode.DEPARTMENT_NOT_FOUND);
