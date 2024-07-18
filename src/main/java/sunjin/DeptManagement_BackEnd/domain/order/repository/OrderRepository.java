@@ -36,5 +36,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByDepartmentIdAndMemberAndStatus(@Param("departmentId") Long departmentId, @Param("memberId") Long memberId, @Param("status") ApprovalStatus status);
 
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.member.id = :memberId AND o.status IN :status")
-    List<Order> findAllByMemberIdAndStatusIn(Long memberId, List<ApprovalStatus> status);
+    List<Order> findAllByMemberIdAndStatusIn(@Param("memberId") Long memberId, @Param("status") List<ApprovalStatus> status);
+
+    @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.status IN :status")
+    List<Order> findByStatusIn(@Param("status") List<ApprovalStatus> status);
 }
