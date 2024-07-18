@@ -30,17 +30,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByDepartmentId(@Param("departmentId") Long departmentId);
 
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.department.id = :departmentId AND o.status IN :status")
-    List<Order> findByDepartmentIdAndStatusIn(@Param("departmentId") Long departmentId, @Param("status") List<ApprovalStatus> progressStatuses);
+    List<Order> findByDepartmentIdAndStatusIn(@Param("departmentId") Long departmentId, @Param("status") List<ApprovalStatus> status);
 
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.department.id = :departmentId AND o.status = :status")
-    List<Order> findByDepartmentIdAndStatus(@Param("departmentId") Long departmentId, @Param("status") ApprovalStatus approvalStatus);
+    List<Order> findByDepartmentIdAndStatus(@Param("departmentId") Long departmentId, @Param("status") ApprovalStatus status);
 
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.department.id = :departmentId AND o.member.id = :memberId")
     List<Order> findByDepartmentIdAndMember(@Param("departmentId") Long departmentId, @Param("memberId") Long memberId);
 
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.department.id = :departmentId AND o.member.id = :memberId AND o.status IN :status")
-    List<Order> findByDepartmentIdAndMemberAndStatusIn(@Param("departmentId") Long departmentId, @Param("memberId") Long memberId, @Param("status") List<ApprovalStatus> progressStatuses);
+    List<Order> findByDepartmentIdAndMemberAndStatusIn(@Param("departmentId") Long departmentId, @Param("memberId") Long memberId, @Param("status") List<ApprovalStatus> status);
 
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.department.id = :departmentId AND o.member.id = :memberId AND o.status = :status")
-    List<Order> findByDepartmentIdAndMemberAndStatus(@Param("departmentId") Long departmentId, @Param("memberId") Long memberId, @Param("status") ApprovalStatus approvalStatus);
+    List<Order> findByDepartmentIdAndMemberAndStatus(@Param("departmentId") Long departmentId, @Param("memberId") Long memberId, @Param("status") ApprovalStatus status);
 }
