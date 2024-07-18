@@ -85,7 +85,8 @@ public class CenterDirectorService {
                 }
             } else if (departmentId != null && memberId != null) {
                 // Case 2: departmentId and memberId are not null, status is null
-                orders = orderRepository.findByDepartmentIdAndMember(departmentId, memberId);
+                List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
+                orders = orderRepository.findByDepartmentIdAndMemberAndStatusIn(departmentId, memberId, progressStatuses);
             } else if (departmentId != null && status != null) {
                 // Case 3: departmentId is not null, memberId is null, status is not null
                 if("progress".equalsIgnoreCase(status)) {
@@ -97,7 +98,8 @@ public class CenterDirectorService {
                 }
             } else if (departmentId != null) {
                 // Case 4: departmentId is not null, memberId and status are null
-                orders = orderRepository.findByDepartmentId(departmentId);
+                List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
+                orders = orderRepository.findByDepartmentIdAndStatusIn(departmentId, progressStatuses);
             } else if (memberId != null && status != null) {
                 // Case 5: departmentId is null, memberId and status are not null
                 if("progress".equalsIgnoreCase(status)) {
@@ -109,7 +111,8 @@ public class CenterDirectorService {
                 }
             } else if (memberId != null) {
                 // Case 6: departmentId is null, memberId is not null, status is null
-                orders = orderRepository.findAllByMemberId(memberId);
+                List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
+                orders = orderRepository.findAllByMemberIdAndStatusIn(memberId, progressStatuses);
             } else if (status != null) {
                 // Case 7: departmentId and memberId are null, status is not null
                 ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);

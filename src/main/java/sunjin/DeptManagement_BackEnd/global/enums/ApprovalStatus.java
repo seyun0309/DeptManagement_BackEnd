@@ -5,8 +5,8 @@ import lombok.Getter;
 @Getter
 public enum ApprovalStatus {
     WAIT("wait","wait"),
-    IN_FIRST_PROGRESS("in_first_progress", "progress"),
-    IN_SECOND_PROGRESS("in_second_progress", "progress"),
+    IN_FIRST_PROGRESS("in_first_progress", "first"),
+    IN_SECOND_PROGRESS("in_second_progress", "second"),
     DENIED("denied","denied"),
     APPROVE("approve","approve");
 
