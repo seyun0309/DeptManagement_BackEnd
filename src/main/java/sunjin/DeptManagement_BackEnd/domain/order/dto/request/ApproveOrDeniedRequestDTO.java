@@ -9,8 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class ApproveOrDeniedRequestDTO {
-    @NotBlank
-    private boolean isApproved;
+    private String isApproved;
 
     private String deniedDescription;
 }

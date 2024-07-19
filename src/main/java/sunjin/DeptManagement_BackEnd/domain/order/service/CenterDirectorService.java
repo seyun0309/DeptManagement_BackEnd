@@ -68,40 +68,52 @@ public class CenterDirectorService {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
     }
-    public List<?> getDepartmentDetails(Long departmentId, Long memberId, String status) {
+    public List<?> getDepartmentDetails(Long departmentId, Long memberId, List<String> statuses) {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
         if (member.getRefreshToken() != null) {
             List<Order> orders;
-            if (departmentId != null && memberId != null && status != null) {
+            if (departmentId != null && memberId != null && (statuses != null && !statuses.isEmpty())) {
                 // Case 1: departmentId, memberId, and status are all not null
-                ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
-                orders = orderRepository.findByDepartmentIdAndMemberAndStatus(departmentId, memberId, approvalStatus);
+                List<ApprovalStatus> approvalStatuses = new ArrayList<>();
+                for (String status : statuses) {
+                    approvalStatuses.add(ApprovalStatus.fromDescription(status));
+                }
+                orders = orderRepository.findByDepartmentIdAndMemberAndStatus(departmentId, memberId, approvalStatuses);
             } else if (departmentId != null && memberId != null) {
                 // Case 2: departmentId and memberId are not null, status is null
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
                 orders = orderRepository.findByDepartmentIdAndMemberAndStatusIn(departmentId, memberId, progressStatuses);
-            } else if (departmentId != null && status != null) {
+            } else if (departmentId != null && (statuses != null && !statuses.isEmpty())) {
                 // Case 3: departmentId is not null, memberId is null, status is not null
-                ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
-                orders = orderRepository.findByDepartmentIdAndStatus(departmentId, approvalStatus);
+                List<ApprovalStatus> approvalStatuses = new ArrayList<>();
+                for (String status : statuses) {
+                    approvalStatuses.add(ApprovalStatus.fromDescription(status));
+                }
+                orders = orderRepository.findByDepartmentIdAndStatus(departmentId, approvalStatuses);
             } else if (departmentId != null) {
                 // Case 4: departmentId is not null, memberId and status are null
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
                 orders = orderRepository.findByDepartmentIdAndStatusIn(departmentId, progressStatuses);
-            } else if (memberId != null && status != null) {
+            } else if (memberId != null && (statuses != null && !statuses.isEmpty())) {
                 // Case 5: departmentId is null, memberId and status are not null
-                ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
-                orders = orderRepository.findAllByMemberIdAndStatus(memberId, approvalStatus);
+                List<ApprovalStatus> approvalStatuses = new ArrayList<>();
+                for (String status : statuses) {
+                    approvalStatuses.add(ApprovalStatus.fromDescription(status));
+                }
+                orders = orderRepository.findAllByMemberIdAndStatus(memberId, approvalStatuses);
             } else if (memberId != null) {
                 // Case 6: departmentId is null, memberId is not null, status is null
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
                 orders = orderRepository.findAllByMemberIdAndStatusIn(memberId, progressStatuses);
-            } else if (status != null) {
+            } else if ((statuses != null && !statuses.isEmpty())) {
                 // Case 7: departmentId and memberId are null, status is not null
-                ApprovalStatus approvalStatus = ApprovalStatus.fromDescription(status);
-                orders = orderRepository.findByStatus(approvalStatus);
+                List<ApprovalStatus> approvalStatuses = new ArrayList<>();
+                for (String status : statuses) {
+                    approvalStatuses.add(ApprovalStatus.fromDescription(status));
+                }
+                orders = orderRepository.findByStatus(approvalStatuses);
             } else {
                 // Case 8: departmentId, memberId, and status are all null
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
@@ -137,70 +149,12 @@ public class CenterDirectorService {
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
                 String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
 
-                if ("wait".equalsIgnoreCase(status) && order.getStatus() == ApprovalStatus.WAIT) {
-                    WaitOrdersResponseDTO waitOrderDTO = WaitOrdersResponseDTO.builder()
-                            .orderId(order.getId())
-                            .applicantDeptName(applicantDeptName)
-                            .applicant(applicantName)
-                            .productType(productType)
-                            .storeName(order.getStoreName())
-                            .totalPrice(order.getTotalPrice())
-                            .description(order.getDescription())
-                            .orderStatus(orderStatus)
-                            .createdAt(createDateFormatted)
-                            .build();
-                    waitOrderDTOList.add(waitOrderDTO);
-                } else if ("progress".equalsIgnoreCase(status) && (order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS || order.getStatus() == ApprovalStatus.IN_SECOND_PROGRESS)) {
-                    ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
-                            .orderId(order.getId())
-                            .applicantDeptName(applicantDeptName)
-                            .applicant(applicantName)
-                            .productType(productType)
-                            .storeName(order.getStoreName())
-                            .totalPrice(order.getTotalPrice())
-                            .description(order.getDescription())
-                            .orderStatus(orderStatus)
-                            .createdAt(createDateFormatted)
-                            .build();
-                    progressOrderDTOList.add(progressOrderDTO);
-                } else if ("denied".equalsIgnoreCase(status) && order.getStatus() == ApprovalStatus.DENIED) {
-                    String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
-                    DeniedOrdersResponseDTO deniedOrderDTO = DeniedOrdersResponseDTO.builder()
-                            .orderId(order.getId())
-                            .applicantDeptName(applicantDeptName)
-                            .applicant(applicantName)
-                            .productType(productType)
-                            .storeName(order.getStoreName())
-                            .totalPrice(order.getTotalPrice())
-                            .description(order.getDescription())
-                            .orderStatus(orderStatus)
-                            .deniedDescription(order.getRejectionDescription())
-                            .createdAt(createDateFormatted)
-                            .procDate(procDate)
-                            .build();
-                    deniedOrderDTOList.add(deniedOrderDTO);
-                } else if ("approve".equalsIgnoreCase(status) && order.getStatus() == ApprovalStatus.APPROVE) {
-                    String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
-                    ApproveOrdersResponseDTO approveOrderDTO = ApproveOrdersResponseDTO.builder()
-                            .orderId(order.getId())
-                            .applicantDeptName(applicantDeptName)
-                            .applicant(applicantName)
-                            .productType(productType)
-                            .storeName(order.getStoreName())
-                            .totalPrice(order.getTotalPrice())
-                            .description(order.getDescription())
-                            .orderStatus(orderStatus)
-                            .createdAt(createDateFormatted)
-                            .procDate(procDate)
-                            .build();
-                    approveOrderDTOList.add(approveOrderDTO);
-                } else {
+                if(statuses.size() > 1) {
                     String procDate = (order.getSecondProcDate() != null)
                             ? order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"))
                             : (order.getFirstProcDate() != null)
                             ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"))
                             : "-";
-
                     GetAllOrderDTO getAllOrderDTO = GetAllOrderDTO.builder()
                             .orderId(order.getId())
                             .applicantDeptName(applicantDeptName)
@@ -214,19 +168,78 @@ public class CenterDirectorService {
                             .procDate(procDate)
                             .build();
                     getAllOrderDTOList.add(getAllOrderDTO);
+                }  else {
+                    if ("wait".equalsIgnoreCase(statuses.toString()) && order.getStatus() == ApprovalStatus.WAIT) {
+                        WaitOrdersResponseDTO waitOrderDTO = WaitOrdersResponseDTO.builder()
+                                .orderId(order.getId())
+                                .applicantDeptName(applicantDeptName)
+                                .applicant(applicantName)
+                                .productType(productType)
+                                .storeName(order.getStoreName())
+                                .totalPrice(order.getTotalPrice())
+                                .description(order.getDescription())
+                                .orderStatus(orderStatus)
+                                .createdAt(createDateFormatted)
+                                .build();
+                        waitOrderDTOList.add(waitOrderDTO);
+                    } else if ("progress".equalsIgnoreCase(statuses.toString()) && (order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS || order.getStatus() == ApprovalStatus.IN_SECOND_PROGRESS)) {
+                        ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
+                                .orderId(order.getId())
+                                .applicantDeptName(applicantDeptName)
+                                .applicant(applicantName)
+                                .productType(productType)
+                                .storeName(order.getStoreName())
+                                .totalPrice(order.getTotalPrice())
+                                .description(order.getDescription())
+                                .orderStatus(orderStatus)
+                                .createdAt(createDateFormatted)
+                                .build();
+                        progressOrderDTOList.add(progressOrderDTO);
+                    } else if ("denied".equalsIgnoreCase(statuses.toString()) && order.getStatus() == ApprovalStatus.DENIED) {
+                        String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
+                        DeniedOrdersResponseDTO deniedOrderDTO = DeniedOrdersResponseDTO.builder()
+                                .orderId(order.getId())
+                                .applicantDeptName(applicantDeptName)
+                                .applicant(applicantName)
+                                .productType(productType)
+                                .storeName(order.getStoreName())
+                                .totalPrice(order.getTotalPrice())
+                                .description(order.getDescription())
+                                .orderStatus(orderStatus)
+                                .deniedDescription(order.getRejectionDescription())
+                                .createdAt(createDateFormatted)
+                                .procDate(procDate)
+                                .build();
+                        deniedOrderDTOList.add(deniedOrderDTO);
+                    } else if ("approve".equalsIgnoreCase(statuses.toString()) && order.getStatus() == ApprovalStatus.APPROVE) {
+                        String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
+                        ApproveOrdersResponseDTO approveOrderDTO = ApproveOrdersResponseDTO.builder()
+                                .orderId(order.getId())
+                                .applicantDeptName(applicantDeptName)
+                                .applicant(applicantName)
+                                .productType(productType)
+                                .storeName(order.getStoreName())
+                                .totalPrice(order.getTotalPrice())
+                                .description(order.getDescription())
+                                .orderStatus(orderStatus)
+                                .createdAt(createDateFormatted)
+                                .procDate(procDate)
+                                .build();
+                        approveOrderDTOList.add(approveOrderDTO);
+                    }
                 }
             }
 
-            if ("wait".equalsIgnoreCase(status)) {
-                return waitOrderDTOList;
-            } else if ("progress".equalsIgnoreCase(status)) {
-                return progressOrderDTOList;
-            } else if ("denied".equalsIgnoreCase(status)) {
-                return deniedOrderDTOList;
-            } else if ("approve".equalsIgnoreCase(status)) {
-                return approveOrderDTOList;
-            } else {
+            if (statuses.size() > 1) {
                 return getAllOrderDTOList;
+            } else if ("wait".equalsIgnoreCase(statuses.toString())) {
+                return waitOrderDTOList;
+            } else if ("progress".equalsIgnoreCase(statuses.toString())) {
+                return progressOrderDTOList;
+            } else if ("denied".equalsIgnoreCase(statuses.toString())) {
+                return deniedOrderDTOList;
+            } else {
+                return approveOrderDTOList;
             }
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
@@ -278,10 +291,10 @@ public class CenterDirectorService {
 
         if (member.getRefreshToken() != null) {
             Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
-            if(approveOrDeniedRequestDTO.isApproved()) {
-                order.denied(ApprovalStatus.DENIED, order.getFirstProcDate(), LocalDateTime.now(), approveOrDeniedRequestDTO.getDeniedDescription());
-            } else {
+            if(approveOrDeniedRequestDTO.getIsApproved().equals("true")) {
                 order.submit(ApprovalStatus.APPROVE, order.getFirstProcDate(), LocalDateTime.now());
+            } else {
+                order.denied(ApprovalStatus.DENIED, order.getFirstProcDate(), LocalDateTime.now(), approveOrDeniedRequestDTO.getDeniedDescription());
             }
             orderRepository.save(order);
         } else {

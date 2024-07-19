@@ -49,8 +49,8 @@ public class TeamLeaderOrderController {
 
     @GetMapping("/teamleader/orders")
     @Operation(summary = "[팀장] 본인의 주문을 전체 및 상태별 조회")
-    public ResponseEntity<List<?>> getAllOrder(@RequestParam(value = "status", required = false) String status) {
-        List<?> response = commonOrderService.getOrders(status);
+    public ResponseEntity<List<?>> getAllOrder(@RequestParam(value = "status", required = false) List<String> statuses) {
+        List<?> response = commonOrderService.getOrders(statuses);
         return ResponseEntity.ok(response);
     }
 
@@ -66,8 +66,8 @@ public class TeamLeaderOrderController {
     @Operation(summary = "[팀장] 사원명, 상태를 적절히 골라 조회 진행 후 DTO 리턴")
     public ResponseEntity<List<?>> getDepartmentDetails(
             @RequestParam(value = "member", required = false) Long memberId,
-            @RequestParam(value = "status", required = false) String status){
-        List<?> response = teamLeaderOrderService.getDepartmentDetails(memberId, status);
+            @RequestParam(value = "status", required = false) List<String> statuses){
+        List<?> response = teamLeaderOrderService.getDepartmentDetails(memberId, statuses);
         return ResponseEntity.ok(response);
     }
 
@@ -80,7 +80,7 @@ public class TeamLeaderOrderController {
 
     @PostMapping("/temleader/department/submit/{orderId}")
     @Operation(summary = "[팀장] 사원의 주문을 승인/반려 처리함")
-    public ResponseEntity<String> approveOrRejectOrderByTeamLeader(@PathVariable("orderId") Long orderId, ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
+    public ResponseEntity<String> approveOrRejectOrderByTeamLeader(@PathVariable("orderId") Long orderId, @RequestBody ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
         teamLeaderOrderService.approveOrRejectOrderByTeamLeader(orderId, approveOrDeniedRequestDTO);
         return ResponseEntity.ok("처리가 완료되었습니다.");
     }
