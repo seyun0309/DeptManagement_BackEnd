@@ -247,7 +247,6 @@ public class CenterDirectorService {
         }
     }
 
-    @Transactional
     public List<ProgressOrdersResponseDTO> getSecondProgressOrders() {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
