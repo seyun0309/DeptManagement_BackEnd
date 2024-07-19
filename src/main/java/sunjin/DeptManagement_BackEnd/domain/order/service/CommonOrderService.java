@@ -198,6 +198,7 @@ public class CommonOrderService {
                             .totalPrice(order.getTotalPrice())
                             .description(order.getDescription())
                             .orderStatus(orderStatus)
+                            .deniedDescription(order.getRejectionDescription())
                             .createdAt(createDateFormatted)
                             .procDate(procDate)
                             .build();
