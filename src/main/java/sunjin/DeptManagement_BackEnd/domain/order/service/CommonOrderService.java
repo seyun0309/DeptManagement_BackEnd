@@ -108,7 +108,7 @@ public class CommonOrderService {
             String orderType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
             String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
             String firstProcDateFormatted = order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
-            String secondProcDateFormmated = order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
+            String secondProcDateFormated = order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
             Resource resource = getImg(orderId);
 
             return GetOrderDetailResponseDTO.builder()
@@ -120,7 +120,7 @@ public class CommonOrderService {
                     .description(order.getDescription())
                     .createdAt(createDateFormatted)
                     .firstProcDate(firstProcDateFormatted)
-                    .secondProcDate(secondProcDateFormmated)
+                    .secondProcDate(secondProcDateFormated)
                     .rejectionDescription(order.getRejectionDescription())
                     .resource(ResponseEntity.ok()
                             .contentType(MediaType.IMAGE_JPEG) // 이미지 타입에 따라 적절히 변경
@@ -150,7 +150,6 @@ public class CommonOrderService {
                     approvalStatuses.add(ApprovalStatus.fromDescription(status));
                 }
                 orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), approvalStatuses);
-                System.out.println("orders.size() : " + orders.size());
             }
 
 
