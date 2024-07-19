@@ -30,8 +30,8 @@ public class CenterDirectorController {
     public ResponseEntity<List<?>> getDepartmentDetails(
             @RequestParam(value = "department", required = false) Long departmentId,
             @RequestParam(value = "member", required = false) Long memberId,
-            @RequestParam(value = "status", required = false) String status){
-        List<?> response = centerDirectorService.getDepartmentDetails(departmentId, memberId, status);
+            @RequestParam(value = "status", required = false) List<String> statuses){
+        List<?> response = centerDirectorService.getDepartmentDetails(departmentId, memberId, statuses);
         return ResponseEntity.ok(response);
     }
 
@@ -44,7 +44,7 @@ public class CenterDirectorController {
 
     @PostMapping("/centerdirector/department/submit/{orderId}")
     @Operation(summary = "[센터장] 직원의 주문 승인/반려 처리")
-    public ResponseEntity<String> approveOrRejectOrderByTeamLeader(@PathVariable("orderId") Long orderId, ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
+    public ResponseEntity<String> approveOrRejectOrderByTeamLeader(@PathVariable("orderId") Long orderId, @RequestBody ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
         centerDirectorService.approveOrRejectOrderByCenterDirector(orderId, approveOrDeniedRequestDTO);
         return ResponseEntity.ok("처리가 완료되었습니다.");
     }
