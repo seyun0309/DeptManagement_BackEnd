@@ -183,7 +183,6 @@ public class CommonOrderService {
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
                 String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
                 if(statuses == null || statuses.size() > 1) {
-                    System.out.println("1");
                     String procDate = (order.getSecondProcDate() != null)
                             ? order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"))
                             : (order.getFirstProcDate() != null)

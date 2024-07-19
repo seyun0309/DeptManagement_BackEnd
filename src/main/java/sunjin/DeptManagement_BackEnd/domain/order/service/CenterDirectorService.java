@@ -149,7 +149,7 @@ public class CenterDirectorService {
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
                 String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
 
-                if(statuses.size() > 1) {
+                if(statuses == null || statuses.size() > 1) {
                     String procDate = (order.getSecondProcDate() != null)
                             ? order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"))
                             : (order.getFirstProcDate() != null)
@@ -230,7 +230,7 @@ public class CenterDirectorService {
                 }
             }
 
-            if (statuses.size() > 1) {
+            if (statuses == null || statuses.size() > 1) {
                 return getAllOrderDTOList;
             } else if ("wait".equalsIgnoreCase(statuses.toString())) {
                 return waitOrderDTOList;
