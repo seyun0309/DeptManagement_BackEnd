@@ -138,15 +138,19 @@ public class CommonOrderService {
 
         if (member.getRefreshToken() != null) {
             List<Order> orders;
+            List<ApprovalStatus> approvalStatuses = new ArrayList<>();
             if(statuses != null && !statuses.isEmpty()) {
-                List<ApprovalStatus> approvalStatuses = new ArrayList<>();
                 for (String status : statuses) {
                     approvalStatuses.add(ApprovalStatus.fromDescription(status));
                 }
                 orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), approvalStatuses);
             }  else {
-                List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
-                orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), progressStatuses);
+                List<String> statusString = List.of("first", "second", "approve", "denied");
+                for (String status : statusString) {
+                    approvalStatuses.add(ApprovalStatus.fromDescription(status));
+                }
+                orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), approvalStatuses);
+                System.out.println("orders.size() : " + orders.size());
             }
 
 
@@ -178,7 +182,8 @@ public class CommonOrderService {
                 }
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
                 String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
-                if(statuses.size() > 1) {
+                if(statuses == null || statuses.size() > 1) {
+                    System.out.println("1");
                     String procDate = (order.getSecondProcDate() != null)
                             ? order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"))
                             : (order.getFirstProcDate() != null)
@@ -260,7 +265,7 @@ public class CommonOrderService {
                 }
             }
 
-            if (statuses.size() > 1) {
+            if (statuses == null || statuses.size() > 1) {
                 return getAllOrderDTOList;
             } else if ("wait".equalsIgnoreCase(statuses.get(0))) {
                 return waitOrderDTOList;
