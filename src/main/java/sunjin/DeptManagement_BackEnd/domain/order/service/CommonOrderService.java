@@ -108,7 +108,7 @@ public class CommonOrderService {
             String orderType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
             String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
             String firstProcDateFormatted = order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
-            String secondProcDateFormmated = order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
+            String secondProcDateFormated = order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
             Resource resource = getImg(orderId);
 
             return GetOrderDetailResponseDTO.builder()
@@ -120,7 +120,7 @@ public class CommonOrderService {
                     .description(order.getDescription())
                     .createdAt(createDateFormatted)
                     .firstProcDate(firstProcDateFormatted)
-                    .secondProcDate(secondProcDateFormmated)
+                    .secondProcDate(secondProcDateFormated)
                     .rejectionDescription(order.getRejectionDescription())
                     .resource(ResponseEntity.ok()
                             .contentType(MediaType.IMAGE_JPEG) // 이미지 타입에 따라 적절히 변경
@@ -150,7 +150,6 @@ public class CommonOrderService {
                     approvalStatuses.add(ApprovalStatus.fromDescription(status));
                 }
                 orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), approvalStatuses);
-                System.out.println("orders.size() : " + orders.size());
             }
 
 
@@ -217,7 +216,20 @@ public class CommonOrderService {
                                 .createdAt(createDateFormatted)
                                 .build();
                         waitOrderDTOList.add(waitOrderDTO);
-                    } else if ("progress".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS || order.getStatus() == ApprovalStatus.IN_SECOND_PROGRESS)) {
+                    } else if ("first".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS)) {
+                        ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
+                                .orderId(order.getId())
+                                .applicantDeptName(applicantDeptName)
+                                .applicant(applicantName)
+                                .productType(productType)
+                                .storeName(order.getStoreName())
+                                .totalPrice(order.getTotalPrice())
+                                .description(order.getDescription())
+                                .orderStatus(orderStatus)
+                                .createdAt(createDateFormatted)
+                                .build();
+                        progressOrderDTOList.add(progressOrderDTO);
+                    } else if ("second".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_SECOND_PROGRESS)) {
                         ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
                                 .orderId(order.getId())
                                 .applicantDeptName(applicantDeptName)
@@ -269,7 +281,9 @@ public class CommonOrderService {
                 return getAllOrderDTOList;
             } else if ("wait".equalsIgnoreCase(statuses.get(0))) {
                 return waitOrderDTOList;
-            } else if ("progress".equalsIgnoreCase(statuses.get(0))) {
+            } else if ("first".equalsIgnoreCase(statuses.get(0))) {
+                return progressOrderDTOList;
+            } else if ("second".equalsIgnoreCase(statuses.get(0))) {
                 return progressOrderDTOList;
             } else if ("denied".equalsIgnoreCase(statuses.get(0))) {
                 return deniedOrderDTOList;

@@ -79,14 +79,15 @@ public class TeamLeaderOrderService {
 
         if(member.getRefreshToken() != null) {
             List<Order> orders;
+            List<ApprovalStatus> approvalStatuses;
             if(memberId != null && (statuses != null && !statuses.isEmpty())) {
-                List<ApprovalStatus> approvalStatuses = new ArrayList<>();
+                approvalStatuses = new ArrayList<>();
                 for (String status : statuses) {
                     approvalStatuses.add(ApprovalStatus.fromDescription(status));
                 }
                 orders = orderRepository.findAllByMemberIdAndStatus(memberId, approvalStatuses);
             } else if(memberId == null && (statuses != null && !statuses.isEmpty())) {
-                List<ApprovalStatus> approvalStatuses = new ArrayList<>();
+                approvalStatuses = new ArrayList<>();
                 for (String status : statuses) {
                     approvalStatuses.add(ApprovalStatus.fromDescription(status));
                 }
@@ -150,7 +151,7 @@ public class TeamLeaderOrderService {
                             .build();
                     getAllOrderDTOList.add(getAllOrderDTO);
                 }  else {
-                     if ("wait".equalsIgnoreCase(statuses.toString()) && order.getStatus() == ApprovalStatus.WAIT) {
+                     if ("wait".equalsIgnoreCase(statuses.get(0)) && order.getStatus() == ApprovalStatus.WAIT) {
                         WaitOrdersResponseDTO waitOrderDTO = WaitOrdersResponseDTO.builder()
                                 .orderId(order.getId())
                                 .applicantDeptName(applicantDeptName)
@@ -163,20 +164,33 @@ public class TeamLeaderOrderService {
                                 .createdAt(createDateFormatted)
                                 .build();
                         waitOrderDTOList.add(waitOrderDTO);
-                    } else if ("progress".equalsIgnoreCase(statuses.toString()) && (order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS || order.getStatus() == ApprovalStatus.IN_SECOND_PROGRESS)) {
-                        ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
-                                .orderId(order.getId())
-                                .applicantDeptName(applicantDeptName)
-                                .applicant(applicantName)
-                                .productType(productType)
-                                .storeName(order.getStoreName())
-                                .totalPrice(order.getTotalPrice())
-                                .description(order.getDescription())
-                                .orderStatus(orderStatus)
-                                .createdAt(createDateFormatted)
-                                .build();
-                        progressOrderDTOList.add(progressOrderDTO);
-                    } else if ("denied".equalsIgnoreCase(statuses.toString()) && order.getStatus() == ApprovalStatus.DENIED) {
+                    } else if ("first".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS)) {
+                         ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
+                                 .orderId(order.getId())
+                                 .applicantDeptName(applicantDeptName)
+                                 .applicant(applicantName)
+                                 .productType(productType)
+                                 .storeName(order.getStoreName())
+                                 .totalPrice(order.getTotalPrice())
+                                 .description(order.getDescription())
+                                 .orderStatus(orderStatus)
+                                 .createdAt(createDateFormatted)
+                                 .build();
+                         progressOrderDTOList.add(progressOrderDTO);
+                     } else if ("second".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_SECOND_PROGRESS)) {
+                         ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
+                                 .orderId(order.getId())
+                                 .applicantDeptName(applicantDeptName)
+                                 .applicant(applicantName)
+                                 .productType(productType)
+                                 .storeName(order.getStoreName())
+                                 .totalPrice(order.getTotalPrice())
+                                 .description(order.getDescription())
+                                 .orderStatus(orderStatus)
+                                 .createdAt(createDateFormatted)
+                                 .build();
+                         progressOrderDTOList.add(progressOrderDTO);
+                     } else if ("denied".equalsIgnoreCase(statuses.get(0)) && order.getStatus() == ApprovalStatus.DENIED) {
                         String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                         DeniedOrdersResponseDTO deniedOrderDTO = DeniedOrdersResponseDTO.builder()
                                 .orderId(order.getId())
@@ -192,7 +206,7 @@ public class TeamLeaderOrderService {
                                 .procDate(procDate)
                                 .build();
                         deniedOrderDTOList.add(deniedOrderDTO);
-                    } else if ("approve".equalsIgnoreCase(statuses.toString()) && order.getStatus() == ApprovalStatus.APPROVE) {
+                    } else if ("approve".equalsIgnoreCase(statuses.get(0)) && order.getStatus() == ApprovalStatus.APPROVE) {
                         String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                         ApproveOrdersResponseDTO approveOrderDTO = ApproveOrdersResponseDTO.builder()
                                 .orderId(order.getId())
@@ -215,7 +229,9 @@ public class TeamLeaderOrderService {
                 return getAllOrderDTOList;
             } else if ("wait".equalsIgnoreCase(statuses.toString())) {
                 return waitOrderDTOList;
-            } else if ("progress".equalsIgnoreCase(statuses.toString())) {
+            } else if ("first".equalsIgnoreCase(statuses.get(0))) {
+                return progressOrderDTOList;
+            } else if ("second".equalsIgnoreCase(statuses.get(0))) {
                 return progressOrderDTOList;
             } else if ("denied".equalsIgnoreCase(statuses.toString())) {
                 return deniedOrderDTOList;
