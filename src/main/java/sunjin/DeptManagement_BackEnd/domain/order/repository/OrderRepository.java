@@ -20,8 +20,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.status IN :status")
     List<Order> findByStatus(@Param("status") List<ApprovalStatus> status);
 
+    @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.department.id = :departmentId AND o.status = :status")
+    List<Order> findByStatusIsFirstProgress(@Param("departmentId") Long departmentId, @Param("status") ApprovalStatus status);
+
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.status = :status")
-    List<Order> findByStatusIsProgress(@Param("status") ApprovalStatus status);
+    List<Order> findByStatusIsSecondProgress(@Param("status") ApprovalStatus status);
 
     @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.department.id = :departmentId AND o.status IN :status")
     List<Order> findByDepartmentIdAndStatusIn(@Param("departmentId") Long departmentId, @Param("status") List<ApprovalStatus> status);

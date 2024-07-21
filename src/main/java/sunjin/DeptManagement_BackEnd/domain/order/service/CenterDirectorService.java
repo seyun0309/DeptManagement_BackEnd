@@ -267,7 +267,7 @@ public class CenterDirectorService {
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (member.getRefreshToken() != null) {
-            List<Order> orders = orderRepository.findByStatusIsProgress(ApprovalStatus.IN_SECOND_PROGRESS);
+            List<Order> orders = orderRepository.findByStatusIsSecondProgress(ApprovalStatus.IN_SECOND_PROGRESS);
             List<ProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
 
             for (Order order : orders) {
