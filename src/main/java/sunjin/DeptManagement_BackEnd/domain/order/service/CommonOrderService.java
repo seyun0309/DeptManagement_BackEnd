@@ -216,7 +216,20 @@ public class CommonOrderService {
                                 .createdAt(createDateFormatted)
                                 .build();
                         waitOrderDTOList.add(waitOrderDTO);
-                    } else if ("progress".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS || order.getStatus() == ApprovalStatus.IN_SECOND_PROGRESS)) {
+                    } else if ("first".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS)) {
+                        ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
+                                .orderId(order.getId())
+                                .applicantDeptName(applicantDeptName)
+                                .applicant(applicantName)
+                                .productType(productType)
+                                .storeName(order.getStoreName())
+                                .totalPrice(order.getTotalPrice())
+                                .description(order.getDescription())
+                                .orderStatus(orderStatus)
+                                .createdAt(createDateFormatted)
+                                .build();
+                        progressOrderDTOList.add(progressOrderDTO);
+                    } else if ("second".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_SECOND_PROGRESS)) {
                         ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
                                 .orderId(order.getId())
                                 .applicantDeptName(applicantDeptName)
@@ -268,7 +281,9 @@ public class CommonOrderService {
                 return getAllOrderDTOList;
             } else if ("wait".equalsIgnoreCase(statuses.get(0))) {
                 return waitOrderDTOList;
-            } else if ("progress".equalsIgnoreCase(statuses.get(0))) {
+            } else if ("first".equalsIgnoreCase(statuses.get(0))) {
+                return progressOrderDTOList;
+            } else if ("second".equalsIgnoreCase(statuses.get(0))) {
                 return progressOrderDTOList;
             } else if ("denied".equalsIgnoreCase(statuses.get(0))) {
                 return deniedOrderDTOList;
