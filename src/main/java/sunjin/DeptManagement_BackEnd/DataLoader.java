@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,6 +77,9 @@ public class DataLoader implements ApplicationRunner {
         // 기본 이미지 저장
         String defaultImagePath = saveDefaultImage();
 
+        LocalDateTime firstProcDate = LocalDateTime.of(2024, 7, 26, 10, 30); // 2023년 7월 24일 10시 30분
+        LocalDateTime secondProcDate = LocalDateTime.of(2023, 7, 25, 15, 45); // 2023년 7월 25일 15시 45분
+
         // Order 초기 데이터 삽입
         List<Order> orders = Arrays.asList(
                 new Order(OrderType.FOOD_COSTS, "수지네 식당", 35000, "부서 단체 식사", ApprovalStatus.WAIT, null, defaultImagePath, "a", null, null, members.get(0), members.get(0).getDepartment()),
@@ -84,23 +88,24 @@ public class DataLoader implements ApplicationRunner {
                 new Order(OrderType.SNACK, "편의점", 15000, "팀 회의 간식", ApprovalStatus.WAIT, null, defaultImagePath, "a", null, null, members.get(0), members.get(0).getDepartment()),
                 new Order(OrderType.GENERAL, "사무용품샵", 12000, "사무용품 구매", ApprovalStatus.IN_FIRST_PROGRESS, null, defaultImagePath, "a", null, null, members.get(0), members.get(0).getDepartment()),
                 new Order(OrderType.FIXTURES, "화이트보드", 45000, "회의실 화이트보드 구매", ApprovalStatus.IN_FIRST_PROGRESS, null, defaultImagePath, "a", null, null, members.get(0), members.get(0).getDepartment()),
-                new Order(OrderType.ETC, "도서관", 30000, "업무 관련 서적 구매", ApprovalStatus.IN_SECOND_PROGRESS, null, defaultImagePath, "a", null, null, members.get(0), members.get(0).getDepartment()),
-                new Order(OrderType.FOOD_COSTS, "도미노피자", 60000, "프로젝트 마감 회식", ApprovalStatus.IN_SECOND_PROGRESS, null, defaultImagePath, "a", null, null, members.get(0), members.get(0).getDepartment()),
-                new Order(OrderType.SNACK, "커피숍", 20000, "미팅용 커피", ApprovalStatus.DENIED, null, defaultImagePath, "a", null, null, members.get(0), members.get(0).getDepartment()),
-                new Order(OrderType.SNACK, "쿠팡", 32000, "간식 구매", ApprovalStatus.APPROVE, null, defaultImagePath, "a", null, null, members.get(0), members.get(0).getDepartment()),
-                new Order(OrderType.ENTERTAINMENT, "풍성옥", 52000, "판교팀 접대", ApprovalStatus.APPROVE, null, defaultImagePath, "a", null, null, members.get(0), members.get(0).getDepartment()),
-                new Order(OrderType.ETC, "출장비", 5100, "물품 구매", ApprovalStatus.APPROVE, null, defaultImagePath, "a", null, null, members.get(0), members.get(0).getDepartment()),
+                new Order(OrderType.ETC, "도서관", 30000, "업무 관련 서적 구매", ApprovalStatus.IN_SECOND_PROGRESS, null, defaultImagePath, "a", LocalDateTime.of(2024, 7, 26, 17, 13), LocalDateTime.of(2024, 7, 27, 9, 5), members.get(0), members.get(0).getDepartment()),
+                new Order(OrderType.FOOD_COSTS, "도미노피자", 60000, "프로젝트 마감 회식", ApprovalStatus.IN_SECOND_PROGRESS, null, defaultImagePath, "a", LocalDateTime.of(2024, 7, 26, 10, 0), LocalDateTime.of(2024, 7, 27, 11, 0), members.get(0), members.get(0).getDepartment()),
+                new Order(OrderType.SNACK, "커피숍", 20000, "미팅용 커피", ApprovalStatus.DENIED, null, defaultImagePath, "a", LocalDateTime.of(2024, 7, 26, 10, 30), LocalDateTime.of(2024, 7, 26, 11, 0), members.get(0), members.get(0).getDepartment()),
+                new Order(OrderType.SNACK, "쿠팡", 32000, "간식 구매", ApprovalStatus.APPROVE, null, defaultImagePath, "a", LocalDateTime.of(2024, 7, 27, 10, 30), LocalDateTime.of(2024, 7, 27, 11, 30), members.get(0), members.get(0).getDepartment()),
+                new Order(OrderType.ENTERTAINMENT, "풍성옥", 52000, "판교팀 접대", ApprovalStatus.APPROVE, null, defaultImagePath, "a", LocalDateTime.of(2024, 7, 28, 12, 0), LocalDateTime.of(2024, 7, 28, 14, 0), members.get(0), members.get(0).getDepartment()),
+                new Order(OrderType.ETC, "출장비", 5100, "물품 구매", ApprovalStatus.APPROVE, null, defaultImagePath, "a", LocalDateTime.of(2024, 7, 28, 15, 0), LocalDateTime.of(2024, 7, 28, 17, 0), members.get(0), members.get(0).getDepartment()),
+
 
                 new Order(OrderType.FIXTURES, "다이소", 15000, "사무실 필기구 구매", ApprovalStatus.WAIT, null, defaultImagePath, "a", null, null, members.get(1), members.get(1).getDepartment()),
                 new Order(OrderType.TRANSPORTATION, "SK주유소", 45000, "이천 출장 차량 주유", ApprovalStatus.WAIT, null, defaultImagePath, "a", null, null, members.get(1), members.get(1).getDepartment()),
                 new Order(OrderType.FOOD_COSTS, "한솥도시락", 27000, "점심 도시락 구매", ApprovalStatus.WAIT, null, defaultImagePath, "a", null, null, members.get(1), members.get(1).getDepartment()),
                 new Order(OrderType.TRANSPORTATION, "택시", 15000, "고객사 방문 택시비", ApprovalStatus.IN_FIRST_PROGRESS, null, defaultImagePath, "a", null, null, members.get(1), members.get(1).getDepartment()),
                 new Order(OrderType.FIXTURES, "컴퓨터 마우스", 25000, "사무실용 무선 마우스 구매", ApprovalStatus.IN_FIRST_PROGRESS, null, defaultImagePath, "a", null, null, members.get(1), members.get(1).getDepartment()),
-                new Order(OrderType.GENERAL, "문구점", 18000, "사무실 필기구 구매", ApprovalStatus.IN_SECOND_PROGRESS, null, defaultImagePath, "a", null, null, members.get(1), members.get(1).getDepartment()),
-                new Order(OrderType.ETC, "온라인 서점", 45000, "업무 관련 책 구매", ApprovalStatus.APPROVE, null, defaultImagePath, "a", null, null, members.get(1), members.get(1).getDepartment()),
-                new Order(OrderType.ENTERTAINMENT, "레스토랑", 95000, "고객사 접대 식사", ApprovalStatus.APPROVE, null, defaultImagePath, "a", null, null, members.get(1), members.get(1).getDepartment()),
-                new Order(OrderType.FIXTURES, "디지털샵", 78000, "프린터기 구매", ApprovalStatus.DENIED, null, defaultImagePath, "a", null, null, members.get(1), members.get(1).getDepartment()),
-                new Order(OrderType.SNACK, "편의점", 12000, "회의용 간식 구매", ApprovalStatus.DENIED, null, defaultImagePath, "a", null, null, members.get(1), members.get(1).getDepartment()),
+                new Order(OrderType.GENERAL, "문구점", 18000, "사무실 필기구 구매", ApprovalStatus.IN_SECOND_PROGRESS, null, defaultImagePath, "a", LocalDateTime.of(2024, 7, 30, 13, 0), LocalDateTime.of(2024, 7, 30, 14, 0), members.get(1), members.get(1).getDepartment()),
+                new Order(OrderType.ETC, "온라인 서점", 45000, "업무 관련 책 구매", ApprovalStatus.APPROVE, null, defaultImagePath, "a", LocalDateTime.of(2024, 7, 31, 9, 0), LocalDateTime.of(2024, 7, 31, 10, 0), members.get(1), members.get(1).getDepartment()),
+                new Order(OrderType.ENTERTAINMENT, "레스토랑", 95000, "고객사 접대 식사", ApprovalStatus.APPROVE, null, defaultImagePath, "a", LocalDateTime.of(2024, 7, 31, 11, 0), LocalDateTime.of(2024, 7, 31, 12, 0), members.get(1), members.get(1).getDepartment()),
+                new Order(OrderType.FIXTURES, "디지털샵", 78000, "프린터기 구매", ApprovalStatus.DENIED, null, defaultImagePath, "a", LocalDateTime.of(2024, 7, 31, 13, 0), LocalDateTime.of(2024, 7, 31, 14, 0), members.get(1), members.get(1).getDepartment()),
+                new Order(OrderType.SNACK, "편의점", 12000, "회의용 간식 구매", ApprovalStatus.DENIED, null, defaultImagePath, "a", LocalDateTime.of(2024, 7, 31, 15, 0), LocalDateTime.of(2024, 7, 31, 16, 0), members.get(1), members.get(1).getDepartment()),
 
                 new Order(OrderType.FIXTURES, "이케아", 75000, "사무실 책상 구매", ApprovalStatus.WAIT, null, defaultImagePath, "a", null, null, members.get(2), members.get(2).getDepartment()),
                 new Order(OrderType.SNACK, "GS25", 12000, "간식 및 음료 구매", ApprovalStatus.WAIT, null, defaultImagePath, "a", null, null, members.get(2), members.get(2).getDepartment()),
