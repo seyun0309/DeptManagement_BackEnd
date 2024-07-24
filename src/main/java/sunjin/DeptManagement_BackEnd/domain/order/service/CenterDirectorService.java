@@ -212,7 +212,7 @@ public class CenterDirectorService {
                                 .procDate(procDate)
                                 .build();
                         secondProgressOrderResponseDTOList.add(secondProgressOrderResponseDTO);
-                    } else if ("denied".equalsIgnoreCase(statuses.toString()) && order.getStatus() == ApprovalStatus.DENIED) {
+                    } else if ("denied".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.DENIED)) {
                         String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                         DeniedOrdersResponseDTO deniedOrderDTO = DeniedOrdersResponseDTO.builder()
                                 .orderId(order.getId())
@@ -228,7 +228,7 @@ public class CenterDirectorService {
                                 .procDate(procDate)
                                 .build();
                         deniedOrderDTOList.add(deniedOrderDTO);
-                    } else if ("approve".equalsIgnoreCase(statuses.toString()) && order.getStatus() == ApprovalStatus.APPROVE) {
+                    } else if ("approve".equalsIgnoreCase(statuses.get(0)) && order.getStatus() == ApprovalStatus.APPROVE) {
                         String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                         ApproveOrdersResponseDTO approveOrderDTO = ApproveOrdersResponseDTO.builder()
                                 .orderId(order.getId())
