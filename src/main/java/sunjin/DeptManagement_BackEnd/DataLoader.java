@@ -54,7 +54,7 @@ public class DataLoader implements ApplicationRunner {
         jdbcTemplate.execute("ALTER SEQUENCE member_id_seq RESTART WITH 1");
 
         Department scmDepartment = new Department("SCM", "디지털 SCM팀");
-        Department fcmDepartment = new Department("FCM", "디지털 FM팀");
+        Department fcmDepartment = new Department("FCM", "디지털 FCM팀");
 
 
         departmentRepository.save(scmDepartment);
@@ -121,7 +121,7 @@ public class DataLoader implements ApplicationRunner {
 
                 new Order(OrderType.SNACK, "스타벅스", 15000, "회의 간식 및 커피", ApprovalStatus.IN_FIRST_PROGRESS, null, defaultImagePath, "a", null, null, members.get(3), members.get(3).getDepartment()),
                 new Order(OrderType.ENTERTAINMENT, "비비고", 64000, "고객 점심 식사", ApprovalStatus.IN_FIRST_PROGRESS, null, defaultImagePath, "a", null, null, members.get(4), members.get(4).getDepartment()),
-                new Order(OrderType.ETC, "화원", 8000, "사무실 화분 구매", ApprovalStatus.DENIED, null, defaultImagePath, "a", null, null, members.get(4), members.get(4).getDepartment())
+                new Order(OrderType.ETC, "화원", 8000, "사무실 화분 구매", ApprovalStatus.DENIED, null, defaultImagePath, "a", LocalDateTime.of(2024, 7, 31, 15, 0), LocalDateTime.of(2024, 7, 31, 16, 0), members.get(4), members.get(4).getDepartment())
         );
         orderRepository.saveAll(orders);
 
