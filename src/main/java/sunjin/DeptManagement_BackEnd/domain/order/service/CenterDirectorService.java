@@ -122,6 +122,7 @@ public class CenterDirectorService {
 
             List<WaitOrdersResponseDTO> waitOrderDTOList = new ArrayList<>();
             List<ProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
+            List<SecondProgressOrderResponseDTO> secondProgressOrderResponseDTOList = new ArrayList<>();
             List<DeniedOrdersResponseDTO> deniedOrderDTOList = new ArrayList<>();
             List<ApproveOrdersResponseDTO> approveOrderDTOList = new ArrayList<>();
             List<GetAllOrderDTO> getAllOrderDTOList = new ArrayList<>();
@@ -197,7 +198,8 @@ public class CenterDirectorService {
                                 .build();
                         progressOrderDTOList.add(progressOrderDTO);
                     } else if ("second".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_SECOND_PROGRESS)) {
-                        ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
+                        String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
+                        SecondProgressOrderResponseDTO secondProgressOrderResponseDTO = SecondProgressOrderResponseDTO.builder()
                                 .orderId(order.getId())
                                 .applicantDeptName(applicantDeptName)
                                 .applicant(applicantName)
@@ -207,8 +209,9 @@ public class CenterDirectorService {
                                 .description(order.getDescription())
                                 .orderStatus(orderStatus)
                                 .createdAt(createDateFormatted)
+                                .procDate(procDate)
                                 .build();
-                        progressOrderDTOList.add(progressOrderDTO);
+                        secondProgressOrderResponseDTOList.add(secondProgressOrderResponseDTO);
                     } else if ("denied".equalsIgnoreCase(statuses.toString()) && order.getStatus() == ApprovalStatus.DENIED) {
                         String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                         DeniedOrdersResponseDTO deniedOrderDTO = DeniedOrdersResponseDTO.builder()
@@ -246,13 +249,13 @@ public class CenterDirectorService {
 
             if (statuses == null || statuses.size() > 1) {
                 return getAllOrderDTOList;
-            } else if ("wait".equalsIgnoreCase(statuses.toString())) {
+            } else if ("wait".equalsIgnoreCase(statuses.get(0))) {
                 return waitOrderDTOList;
             } else if ("first".equalsIgnoreCase(statuses.get(0))) {
                 return progressOrderDTOList;
             } else if ("second".equalsIgnoreCase(statuses.get(0))) {
-                return progressOrderDTOList;
-            } else if ("denied".equalsIgnoreCase(statuses.toString())) {
+                return secondProgressOrderResponseDTOList;
+            } else if ("denied".equalsIgnoreCase(statuses.get(0))) {
                 return deniedOrderDTOList;
             } else {
                 return approveOrderDTOList;
