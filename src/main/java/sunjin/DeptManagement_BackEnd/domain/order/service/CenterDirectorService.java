@@ -80,7 +80,7 @@ public class CenterDirectorService {
                 for (String status : statuses) {
                     approvalStatuses.add(ApprovalStatus.fromDescription(status));
                 }
-                orders = orderRepository.findByDepartmentIdAndMemberAndStatus(departmentId, memberId, approvalStatuses);
+                orders = orderRepository.findByDepartmentIdAndMemberAndStatusIn(departmentId, memberId, approvalStatuses);
             } else if (departmentId != null && memberId != null) {
                 // Case 2: departmentId and memberId are not null, status is null
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
@@ -91,7 +91,7 @@ public class CenterDirectorService {
                 for (String status : statuses) {
                     approvalStatuses.add(ApprovalStatus.fromDescription(status));
                 }
-                orders = orderRepository.findByDepartmentIdAndStatus(departmentId, approvalStatuses);
+                orders = orderRepository.findByDepartmentIdAndStatusIn(departmentId, approvalStatuses);
             } else if (departmentId != null) {
                 // Case 4: departmentId is not null, memberId and status are null
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
@@ -102,18 +102,18 @@ public class CenterDirectorService {
                 for (String status : statuses) {
                     approvalStatuses.add(ApprovalStatus.fromDescription(status));
                 }
-                orders = orderRepository.findAllByMemberIdAndStatus(memberId, approvalStatuses);
+                orders = orderRepository.findByMemberIdAndStatusIn(memberId, approvalStatuses);
             } else if (memberId != null) {
                 // Case 6: departmentId is null, memberId is not null, status is null
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
-                orders = orderRepository.findAllByMemberIdAndStatusIn(memberId, progressStatuses);
+                orders = orderRepository.findByMemberIdAndStatusIn(memberId, progressStatuses);
             } else if ((statuses != null && !statuses.isEmpty())) {
                 // Case 7: departmentId and memberId are null, status is not null
                 List<ApprovalStatus> approvalStatuses = new ArrayList<>();
                 for (String status : statuses) {
                     approvalStatuses.add(ApprovalStatus.fromDescription(status));
                 }
-                orders = orderRepository.findByStatus(approvalStatuses);
+                orders = orderRepository.findByStatusIn(approvalStatuses);
             } else {
                 // Case 8: departmentId, memberId, and status are all null
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);

@@ -85,16 +85,16 @@ public class TeamLeaderOrderService {
                 for (String status : statuses) {
                     approvalStatuses.add(ApprovalStatus.fromDescription(status));
                 }
-                orders = orderRepository.findAllByMemberIdAndStatus(memberId, approvalStatuses);
+                orders = orderRepository.findByMemberIdAndStatusIn(memberId, approvalStatuses);
             } else if(memberId == null && (statuses != null && !statuses.isEmpty())) {
                 approvalStatuses = new ArrayList<>();
                 for (String status : statuses) {
                     approvalStatuses.add(ApprovalStatus.fromDescription(status));
                 }
-                orders = orderRepository.findByDepartmentIdAndStatus(member.getDepartment().getId(), approvalStatuses);
+                orders = orderRepository.findByDepartmentIdAndStatusIn(member.getDepartment().getId(), approvalStatuses);
             } else if(memberId != null) {
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
-                orders = orderRepository.findAllByMemberIdAndStatusIn(memberId, progressStatuses);
+                orders = orderRepository.findByMemberIdAndStatusIn(memberId, progressStatuses);
             } else {
                 List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
                 orders = orderRepository.findByDepartmentIdAndStatusIn(member.getDepartment().getId(), progressStatuses);
