@@ -39,7 +39,7 @@ public class JwtProvider {
     private Key signingKey;
     private JwtParser jwtParser;
 
-    private static final Long ACCESS_TOKEN_PERIOD = 1000L * 60L * 60L * 24L * 31L; // 1시간
+    private static final Long ACCESS_TOKEN_PERIOD = 1000L * 60L * 60L; // 1시간
     private static final Long REFRESH_TOKEN_PERIOD = 1000L * 60L * 60L * 24L * 14L; // 2주
 
     @PostConstruct
