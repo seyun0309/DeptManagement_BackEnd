@@ -77,9 +77,6 @@ public class DataLoader implements ApplicationRunner {
         // 기본 이미지 저장
         String defaultImagePath = saveDefaultImage();
 
-        LocalDateTime firstProcDate = LocalDateTime.of(2024, 7, 26, 10, 30); // 2023년 7월 24일 10시 30분
-        LocalDateTime secondProcDate = LocalDateTime.of(2023, 7, 25, 15, 45); // 2023년 7월 25일 15시 45분
-
         // Order 초기 데이터 삽입
         List<Order> orders = Arrays.asList(
                 new Order(OrderType.FOOD_COSTS, "수지네 식당", 35000, "부서 단체 식사", ApprovalStatus.WAIT, null, defaultImagePath, "a", null, null, members.get(0), members.get(0).getDepartment()),
