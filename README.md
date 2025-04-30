@@ -1,4 +1,4 @@
-##DeptManagement
+## DeptManagement
 
 **DeptManagement**는 (주)선진 디지털SCM팀의 하계 현장실습으로 진행된 프로젝트입니다.<br>
 사용자가 비품을 신청하고, 지정된 결재 라인에 따라 승인 절차가 진행되는 기능을 제공합니다.<br>
