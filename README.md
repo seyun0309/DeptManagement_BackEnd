@@ -35,7 +35,7 @@
 - [seyun0309](https://github.com/seyun0309)
 
 ## 📝 발표 자료
-<img src = "https://github.com/user-attachments/assets/124c3885-7e90-45a2-bac1-a720346f28fa" width = "600">
+<img src = "https://github.com/user-attachments/assets/5ef66781-53c2-402b-b63f-3aa8a1204cac" width = "600">
 <img src = "https://github.com/user-attachments/assets/101ccc37-72f4-4d7c-8a50-654bd6667e66" width = "600">
 <img src = "https://github.com/user-attachments/assets/f7ffd8f6-1c43-4fa5-bd2c-d1859cfc2b2b" width = "600">
 <img src = "https://github.com/user-attachments/assets/5b36bda3-2d4a-411c-aa5b-1e5353a00d19" width = "600">
