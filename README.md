@@ -36,7 +36,7 @@
 
 ## 📝 발표 자료
 <img src = "https://github.com/user-attachments/assets/fbc120b3-cafd-4e22-9c0d-4ff3055de9e6" width = "600">
-<img src = "https://github.com/user-attachments/assets/101ccc37-72f4-4d7c-8a50-654bd6667e66" width = "600">
+<img src = "https://github.com/user-attachments/assets/76b29275-a8ee-4269-81de-e3ad828fd9de" width = "600">
 <img src = "https://github.com/user-attachments/assets/f7ffd8f6-1c43-4fa5-bd2c-d1859cfc2b2b" width = "600">
 <img src = "https://github.com/user-attachments/assets/5b36bda3-2d4a-411c-aa5b-1e5353a00d19" width = "600">
 <img src = "https://github.com/user-attachments/assets/6b3a9cc2-d726-4982-882f-fa8fbe9da54d" width = "600">
