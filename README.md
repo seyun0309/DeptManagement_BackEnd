@@ -35,11 +35,11 @@
 - [seyun0309](https://github.com/seyun0309)
 
 ## 📝 발표 자료
-<img src = "https://github.com/user-attachments/assets/124c3885-7e90-45a2-bac1-a720346f28fa" width = "700">
-<img src = "https://github.com/user-attachments/assets/101ccc37-72f4-4d7c-8a50-654bd6667e66" width = "700">
-<img src = "https://github.com/user-attachments/assets/f7ffd8f6-1c43-4fa5-bd2c-d1859cfc2b2b" width = "700">
-<img src = "https://github.com/user-attachments/assets/5b36bda3-2d4a-411c-aa5b-1e5353a00d19" width = "700">
-<img src = "https://github.com/user-attachments/assets/6b3a9cc2-d726-4982-882f-fa8fbe9da54d" width = "700">
-<img src = "https://github.com/user-attachments/assets/6d974194-c31e-47cd-a984-5b3bd816f695" width = "700">
-<img src = "https://github.com/user-attachments/assets/d66c6541-3a7f-4905-a0bb-31976a552eb9" width = "700">
-<img src = "https://github.com/user-attachments/assets/a15f0967-e446-4f75-b217-f88dce831377" width = "700">
+<img src = "https://github.com/user-attachments/assets/124c3885-7e90-45a2-bac1-a720346f28fa" width = "600">
+<img src = "https://github.com/user-attachments/assets/101ccc37-72f4-4d7c-8a50-654bd6667e66" width = "600">
+<img src = "https://github.com/user-attachments/assets/f7ffd8f6-1c43-4fa5-bd2c-d1859cfc2b2b" width = "600">
+<img src = "https://github.com/user-attachments/assets/5b36bda3-2d4a-411c-aa5b-1e5353a00d19" width = "600">
+<img src = "https://github.com/user-attachments/assets/6b3a9cc2-d726-4982-882f-fa8fbe9da54d" width = "600">
+<img src = "https://github.com/user-attachments/assets/6d974194-c31e-47cd-a984-5b3bd816f695" width = "600">
+<img src = "https://github.com/user-attachments/assets/d66c6541-3a7f-4905-a0bb-31976a552eb9" width = "600">
+<img src = "https://github.com/user-attachments/assets/a15f0967-e446-4f75-b217-f88dce831377" width = "600">
