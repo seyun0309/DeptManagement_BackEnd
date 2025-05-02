@@ -33,3 +33,13 @@
 
 ## 🧑‍💻 개발자
 - [seyun0309](https://github.com/seyun0309)
+
+## 📝 발표 자료
+<img src = "https://github.com/user-attachments/assets/5cdb01c8-2eee-4736-8923-ee917b89240b" width = "700">
+<img src = "https://github.com/user-attachments/assets/a23dda24-2690-4062-bf76-88069af3d147" width = "700">
+<img src = "https://github.com/user-attachments/assets/3f311bb6-46a1-4365-b4b0-3a449067808a" width = "700">
+<img src = "https://github.com/user-attachments/assets/210e738c-b986-42f8-8baf-45b0d53f4be4" width = "700">
+<img src = "https://github.com/user-attachments/assets/a8f43b6f-ca95-4172-98f0-baf6d9c14f16" width = "700">
+<img src = "https://github.com/user-attachments/assets/5e96ade3-0f67-47c9-b9ab-46eda0ac039a" width = "700">
+<img src = "https://github.com/user-attachments/assets/cfd1cc98-6a8b-4165-8a10-5c64bca13d80" width = "700">
+<img src = "https://github.com/user-attachments/assets/acce8939-d5b9-487a-904b-2799282c1ab8" width = "700">
