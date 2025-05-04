@@ -34,9 +34,11 @@
 ## 🗂️ ERD
 <img src = "https://github.com/user-attachments/assets/262a14a0-aab4-4591-b4fd-51602519f5ab">
 <br>
+<br>
 
 ## 🔌 API
 <img src = "https://github.com/user-attachments/assets/3edb0982-ffa7-4cdd-8650-f6f0a9a9a799">
+<br>
 <br>
 
 ## 📝 발표 자료
