@@ -31,10 +31,10 @@
 - Swagger를 통한 API 문서 자동화
 
 ## 🗂️ ERD
-<img src = "https://github.com/user-attachments/assets/262a14a0-aab4-4591-b4fd-51602519f5ab" width = "600">
+<img src = "https://github.com/user-attachments/assets/262a14a0-aab4-4591-b4fd-51602519f5ab">
 
 ## 🔌 API
-<img src = "https://github.com/user-attachments/assets/3edb0982-ffa7-4cdd-8650-f6f0a9a9a799" width = "600">
+<img src = "https://github.com/user-attachments/assets/3edb0982-ffa7-4cdd-8650-f6f0a9a9a799">
 
 
 ## 📝 발표 자료
