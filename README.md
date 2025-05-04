@@ -3,7 +3,7 @@
 **DeptManagement**는 (주)선진 디지털SCM팀의 하계 현장실습으로 진행된 프로젝트입니다.<br>
 사용자가 비품을 신청하고, 지정된 결재 라인에 따라 승인 절차가 진행되는 기능을 제공합니다.<br>
 비품 신청 건은 결재 라인에 설정된 순서에 따라 차례로 결재됩니다.
-
+<br>
 
 ## 👥 팀 구성
 
@@ -11,7 +11,7 @@
 |------------------|----------|
 | **백엔드 개발**  | **김세윤**   |
 | 프론트엔드 개발 | 이규태   ||
-
+<br>
 
 ## 🛠 기술 스택
 
@@ -20,7 +20,7 @@
 - **데이터베이스**: PostgreSQL
 - **보안**: Spring Security, JWT
 - **API 문서**: Swagger
-
+<br>
 
 ## 📌 주요 기능
 
@@ -29,13 +29,15 @@
 - 사용자별 결재 라인 설정
 - 결재 단계별 승인/반려 처리 및 상태 추적
 - Swagger를 통한 API 문서 자동화
+<br>
 
 ## 🗂️ ERD
 <img src = "https://github.com/user-attachments/assets/262a14a0-aab4-4591-b4fd-51602519f5ab">
+<br>
 
 ## 🔌 API
 <img src = "https://github.com/user-attachments/assets/3edb0982-ffa7-4cdd-8650-f6f0a9a9a799">
-
+<br>
 
 ## 📝 발표 자료
 <img src = "https://github.com/user-attachments/assets/933cfc68-9cad-405e-a9f1-16636d81b0c8" width = "600">
