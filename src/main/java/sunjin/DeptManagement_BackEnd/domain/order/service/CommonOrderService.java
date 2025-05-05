@@ -112,7 +112,7 @@ public class CommonOrderService {
             Resource resource = getImg(orderId);
 
             return GetOrderDetailResponseDTO.builder()
-                    .DeptName(member.getDepartment().getDeptName())
+                    .DeptName(member.getDepartment().getDepartment().getDescription())
                     .applicantName(member.getUserName())
                     .orderType(orderType)
                     .storeName(order.getStoreName())
@@ -181,7 +181,7 @@ public class CommonOrderService {
                      }
                 }
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
-                String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
+                String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDepartment().getDescription() : null;
                 if(statuses == null || statuses.size() > 1) {
                     String procDate = (order.getSecondProcDate() != null)
                             ? order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"))

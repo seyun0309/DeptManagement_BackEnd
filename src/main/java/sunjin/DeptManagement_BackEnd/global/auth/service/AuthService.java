@@ -15,6 +15,7 @@ import sunjin.DeptManagement_BackEnd.global.auth.dto.request.LoginRequestDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.request.SignUpRequestDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.response.SignUpResponseDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.response.VerifyResponseDTO;
+import sunjin.DeptManagement_BackEnd.global.enums.DeptType;
 import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.enums.Role;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
@@ -43,8 +44,7 @@ public class AuthService {
         }
 
         //deptCode 통해서 부서 내용 가져오기
-        Department department = departmentRepository.findByDeptCode(signUpRequestDTO.getDeptCode())
-                .orElseThrow(() -> new BusinessException(ErrorCode.DEPARTMENT_NOT_FOUND));
+        DeptType department = DeptType.formCode(signUpRequestDTO.getDeptCode());
 
         String hashedPassword = passwordEncoder.encode(signUpRequestDTO.getPassword());
         Member member = Member.builder()
@@ -52,7 +52,7 @@ public class AuthService {
                 .loginId(signUpRequestDTO.getLoginId())
                 .password(hashedPassword)
                 .role(EMPLOYEE)
-                .department(department)
+                .department(new Department(department))
                 .build();
 
         memberRepository.save(member);
@@ -66,11 +66,10 @@ public class AuthService {
 
     @Transactional
     public VerifyResponseDTO verifyDeptCode(String deptCode) {
-        Department department = departmentRepository.findByDeptCode(deptCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.DEPARTMENT_NOT_FOUND));
+        DeptType department = DeptType.formCode(deptCode);
 
         return VerifyResponseDTO.builder()
-                .deptName(department.getDeptName())
+                .deptName(department.getDescription())
                 .build();
     }
 

@@ -13,6 +13,7 @@ import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
 import sunjin.DeptManagement_BackEnd.domain.order.domain.Order;
 import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.global.enums.ApprovalStatus;
+import sunjin.DeptManagement_BackEnd.global.enums.DeptType;
 import sunjin.DeptManagement_BackEnd.global.enums.OrderType;
 import sunjin.DeptManagement_BackEnd.global.enums.Role;
 
@@ -53,8 +54,8 @@ public class DataLoader implements ApplicationRunner {
         jdbcTemplate.execute("ALTER SEQUENCE department_id_seq RESTART WITH 1");
         jdbcTemplate.execute("ALTER SEQUENCE member_id_seq RESTART WITH 1");
 
-        Department scmDepartment = new Department("SCM", "디지털 SCM팀");
-        Department fcmDepartment = new Department("FCM", "디지털 FCM팀");
+        Department scmDepartment = new Department(DeptType.DIGITAL_SCM);
+        Department fcmDepartment = new Department(DeptType.DIGITAL_FCM);
 
 
         departmentRepository.save(scmDepartment);

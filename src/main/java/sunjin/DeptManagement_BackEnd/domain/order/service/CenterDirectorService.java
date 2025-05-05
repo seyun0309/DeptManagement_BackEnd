@@ -42,7 +42,7 @@ public class CenterDirectorService {
             List<DepartmentInfoResponseDTO> departmentInfoList = new ArrayList<>();
 
             for (Department department : allDepartment) {
-                String deptName = department.getDeptName();
+                String deptName = department.getDepartment().getDescription();
                 Long deptId = department.getId();
                 List<Member> memberListByDeptId = memberRepository.findByDepartmentId(department.getId());
                 List<MemberResponseDTO> memberInfoList = new ArrayList<>();
@@ -148,7 +148,7 @@ public class CenterDirectorService {
                     }
                 }
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
-                String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
+                String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDepartment().getDescription() : null;
 
                 if(statuses == null || statuses.size() > 1) {
                     String procDate = (order.getSecondProcDate() != null)
@@ -281,7 +281,7 @@ public class CenterDirectorService {
                 String productType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
                 String orderStatus = "2차 처리중";
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
-                String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
+                String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDepartment().getDescription() : null;
 
                 ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
                         .orderId(order.getId())
