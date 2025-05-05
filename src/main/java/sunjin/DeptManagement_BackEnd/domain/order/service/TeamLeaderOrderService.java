@@ -67,7 +67,7 @@ public class TeamLeaderOrderService {
                 .collect(Collectors.toList());
 
         return DepartmentInfoResponseDTO.builder()
-                .deptName(member.getDepartment().getDeptName())
+                .deptName(member.getDepartment().getDepartment().getDescription())
                 .deptId(member.getDepartment().getId())
                 .members(memberResponseDTOList)
                 .build();
@@ -128,7 +128,7 @@ public class TeamLeaderOrderService {
                     }
                 }
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
-                String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
+                String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDepartment().getDescription(): null;
 
                 if(statuses == null || statuses.size() > 1) {
                     String procDate = (order.getSecondProcDate() != null)
@@ -262,7 +262,7 @@ public class TeamLeaderOrderService {
                 String productType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
                 String orderStatus = "1차 처리중";
                 String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
-                String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDeptName() : null;
+                String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDepartment().getDescription() : null;
 
                 ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
                         .orderId(order.getId())
