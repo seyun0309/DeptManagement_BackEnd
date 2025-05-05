@@ -30,7 +30,6 @@ import static sunjin.DeptManagement_BackEnd.global.enums.Role.EMPLOYEE;
 @Slf4j
 public class AuthService {
     private final MemberRepository memberRepository;
-    private final DepartmentRepository departmentRepository;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
