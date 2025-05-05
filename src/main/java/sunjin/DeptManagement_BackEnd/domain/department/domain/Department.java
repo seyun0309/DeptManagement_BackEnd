@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import sunjin.DeptManagement_BackEnd.global.common.BaseEntity;
+import sunjin.DeptManagement_BackEnd.global.enums.DeptType;
 
 @SuperBuilder
 @Getter
@@ -15,9 +16,8 @@ import sunjin.DeptManagement_BackEnd.global.common.BaseEntity;
 @Table(name = "department")
 public class Department extends BaseEntity {
 
-    @Column(nullable = false)
-    private String deptCode;
+    @Column
+    @Enumerated(EnumType.STRING)
+    DeptType department;
 
-    @Column(nullable = false)
-    private String deptName;
 }
