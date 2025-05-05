@@ -44,7 +44,7 @@ public class JwtProvider {
 
     @PostConstruct
     protected void init() {
-        String secretKey = Base64.getEncoder().encodeToString(jwtConfig.getSecretKey().getBytes());
+        String secretKey = Base64.getEncoder().encodeToString(jwtConfig.getSecret().getBytes());
         byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(secretKey);
         signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
         jwtParser = Jwts.parserBuilder().setSigningKey(signingKey).build();
