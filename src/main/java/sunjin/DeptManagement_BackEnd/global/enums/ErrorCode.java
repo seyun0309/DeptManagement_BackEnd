@@ -41,7 +41,17 @@ public enum ErrorCode {
 
     // Token
     MISMATCH_REFRESH_TOKEN(401, "T001", "유효하지 않은 리프레시 토큰입니다"),
-    NO_PERMISSION(401, "T002", "요청에 대한 권한이 없습니다");
+    NO_PERMISSION(401, "T002", "요청에 대한 권한이 없습니다"),
+
+    //S3(Image)
+    EMPTY_FILE_EXCEPTION(400, "S001", "파일이 비어있습니다"),
+    IO_EXCEPTION_ON_IMAGE_UPLOAD(500, "S002", "이미지 업로드 중에 IO 예외 발생"),
+    NO_FILE_EXTENSION(400, "S003", "확장자가 없습니다"),
+    INVALID_FILE_EXTENSION(400, "S004", "jpg, jpeg, png, gif가 아닌 확장자가 들어왔습니다"),
+    PUT_OBJECT_EXCEPTION(500, "S005", "S3에 저장할 때 문제가 발생하였습니다"),
+    IO_EXCEPTION_ON_IMAGE_DELETE(500, "S006", "파일을 삭제 중에 입출력 예외 발생"),
+
+    ;
 
     private final String code;
     private final String message;
