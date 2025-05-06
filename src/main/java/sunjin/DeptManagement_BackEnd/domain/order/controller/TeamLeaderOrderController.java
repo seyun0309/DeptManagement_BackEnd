@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.request.ApproveOrDeniedRequestDTO;
-import sunjin.DeptManagement_BackEnd.domain.order.dto.request.createOrderRequestDTO;
+import sunjin.DeptManagement_BackEnd.domain.order.dto.request.CreateOrderRequestDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.DepartmentInfoResponseDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.GetOrderDetailResponseDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.ProgressOrdersResponseDTO;
@@ -34,7 +34,7 @@ public class TeamLeaderOrderController {
     @PostMapping("/teamleader/orders")
     @Operation(summary = "[팀장] 주문 신청")
     public ResponseEntity<String> createOrder(@RequestPart(required = false, name = "image") MultipartFile image,
-                                              @RequestPart(name = "request") @Valid createOrderRequestDTO createOrderRequestDTO){
+                                              @RequestPart(name = "request") @Valid CreateOrderRequestDTO createOrderRequestDTO){
         commonOrderService.createOrder(image, createOrderRequestDTO);
         return ResponseEntity.ok("주문에 성공했습니다.");
     }
@@ -93,25 +93,15 @@ public class TeamLeaderOrderController {
 
     @GetMapping("/teamleader/img/{orderId}")
     @Operation(summary = "[팀장] 수정 모달에 띄울 이미지 리턴", description = "수정 버튼을 클릭하면 해당 주문의 사진을 리턴합니다")
-    public ResponseEntity<Resource> getImg(@PathVariable("orderId") Long orderId) {
-        try {
-            Resource resource = commonOrderService.getImg(orderId);
-
-            // 파일이 존재하고 읽을 수 있는 경우 리턴
-            return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG) // 이미지 타입에 따라 적절히 변경
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                    .body(resource);
-        } catch (BusinessException | IOException e) {
-            // BusinessException이 발생하면 예외 처리
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-        }
+    public ResponseEntity<String> getImg(@PathVariable("orderId") Long orderId) {
+        String response = commonOrderService.getImg(orderId);
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/teamleader/{orderId}")
     @Operation(summary = "[팀장] 본인의 주문 수정")
     public ResponseEntity<String> updateOrder(@RequestPart(name = "image") MultipartFile image,
-                                              @RequestPart(name = "request") @Valid createOrderRequestDTO createOrderRequestDTO,
+                                              @RequestPart(name = "request") @Valid CreateOrderRequestDTO createOrderRequestDTO,
                                               @PathVariable("orderId") Long orderId){
         commonOrderService.updateOrder(image, createOrderRequestDTO, orderId);
         return ResponseEntity.ok("주문 수정에 성공했습니다.");

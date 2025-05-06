@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import sunjin.DeptManagement_BackEnd.domain.department.domain.Department;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
 import sunjin.DeptManagement_BackEnd.domain.order.domain.Order;
-import sunjin.DeptManagement_BackEnd.domain.order.dto.request.createOrderRequestDTO;
+import sunjin.DeptManagement_BackEnd.domain.order.dto.request.CreateOrderRequestDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.*;
 import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
@@ -42,35 +43,22 @@ public class CommonOrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
+    private final S3ImageService s3ImageService;
 
     @Transactional
-    public void createOrder(MultipartFile image, createOrderRequestDTO createOrderRequestDTO) {
+    public void createOrder(MultipartFile image, CreateOrderRequestDTO createOrderRequestDTO) {
         // 현재 로그인 정보 확인
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
-        if(member.getRefreshToken() != null){
+        if(member.getRefreshToken() != null) {
             // 이미지 저장
-            if (image.isEmpty()) {
-                throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
+            String imgUrl = null;
+            if (image != null && !image.isEmpty()) {
+                imgUrl = saveBoardImages(image);
             }
 
-            String storedFileName;
             Department department = member.getDepartment();
-            String originalFilename = image.getOriginalFilename();
-
-            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            storedFileName = UUID.randomUUID().toString() + extension;
-            File dest = new File(imageUploadDir + "/" + storedFileName);
-
-            try {
-                image.transferTo(dest);
-            } catch (IOException e) {
-                throw new RuntimeException("파일 저장 실패", e);
-            }
-
-            String receiptImgPath = imageUploadDir + "/" + storedFileName;
-            String imgUrl = storedFileName;
 
             // ProductType 변환
             OrderType productType = createOrderRequestDTO.getProductTypeEnum();
@@ -83,8 +71,7 @@ public class CommonOrderService {
                     .description(createOrderRequestDTO.getDescription())
                     .status(ApprovalStatus.WAIT)
                     .rejectionDescription(null)
-                    .receiptImgPath(receiptImgPath)
-                    .ImgURL(imgUrl)
+                    .receiptImgUrl(imgUrl)
                     .firstProcDate(null)
                     .secondProcDate(null)
                     .member(member)
@@ -109,7 +96,7 @@ public class CommonOrderService {
             String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
             String firstProcDateFormatted = order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
             String secondProcDateFormated = order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
-            Resource resource = getImg(orderId);
+            String receiptImgUrl = order.getReceiptImgUrl();
 
             return GetOrderDetailResponseDTO.builder()
                     .DeptName(member.getDepartment().getDepartment().getDescription())
@@ -122,10 +109,7 @@ public class CommonOrderService {
                     .firstProcDate(firstProcDateFormatted)
                     .secondProcDate(secondProcDateFormated)
                     .rejectionDescription(order.getRejectionDescription())
-                    .resource(ResponseEntity.ok()
-                            .contentType(MediaType.IMAGE_JPEG) // 이미지 타입에 따라 적절히 변경
-                            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                            .body(resource).getBody())
+                    .receiptImgUrl(receiptImgUrl)
                     .build();
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
@@ -298,7 +282,7 @@ public class CommonOrderService {
         }
     }
 
-    public Resource getImg(Long orderId) throws IOException {
+    public String getImg(Long orderId) {
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
@@ -306,29 +290,14 @@ public class CommonOrderService {
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
-            // 이미지 파일 경로 가져오기
-            String imagePath = order.getReceiptImgPath();
-            if (imagePath == null) {
-                throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
-            }
-
-            // 파일 경로를 리소스로 변환
-            Path filePath = Paths.get(imagePath);
-            Resource resource = new UrlResource(filePath.toUri());
-
-            // 파일이 존재하고 읽을 수 있는 경우 리턴
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
-            }
+            return order.getReceiptImgUrl();
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
     }
 
     @Transactional
-    public void updateOrder(MultipartFile image, createOrderRequestDTO createOrderRequestDTO, Long orderId) {
+    public void updateOrder(MultipartFile image, CreateOrderRequestDTO createOrderRequestDTO, Long orderId) {
         //해당 주문 신청자와 현재 로그인한 사람 비교
         long currentUserId = jwtProvider.extractIdFromTokenInHeader();
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
@@ -352,33 +321,14 @@ public class CommonOrderService {
             OrderType productType = createOrderRequestDTO.getProductTypeEnum();
 
             // 이미지 저장
-            if (image.isEmpty()) {
-                throw new BusinessException(ErrorCode.IMG_NOT_FOUND);
-            }
-
-            String storedFileName;
-            String originalFilename = image.getOriginalFilename();
-
-            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            storedFileName = UUID.randomUUID().toString() + extension;
-            File dest = new File(imageUploadDir + "/" + storedFileName);
-
-            try {
-                image.transferTo(dest);
-            } catch (IOException e) {
-                throw new RuntimeException("파일 저장 실패", e);
-            }
-
-            String receiptImgPath = imageUploadDir + "/" + storedFileName;
-            String imgUrl = storedFileName;
+            String imgUrl = s3ImageService.upload(image);
 
             order.updateInfo(
                     productType,
                     createOrderRequestDTO.getStoreName(),
                     createOrderRequestDTO.getTotalPrice(),
                     createOrderRequestDTO.getDescription(),
-                    imgUrl,
-                    receiptImgPath);
+                    imgUrl);
 
             orderRepository.save(order);
         } else {
@@ -408,5 +358,9 @@ public class CommonOrderService {
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
+    }
+
+    public String saveBoardImages(MultipartFile image) {
+        return s3ImageService.upload(image);
     }
 }

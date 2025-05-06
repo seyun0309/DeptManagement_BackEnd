@@ -9,7 +9,7 @@ import sunjin.DeptManagement_BackEnd.global.enums.OrderType;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class createOrderRequestDTO {
+public class CreateOrderRequestDTO {
 
     @NotBlank
     private String productType;

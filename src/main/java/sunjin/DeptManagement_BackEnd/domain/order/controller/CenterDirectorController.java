@@ -29,19 +29,9 @@ public class CenterDirectorController {
 
     @GetMapping("/centerdirector/img/{orderId}")
     @Operation(summary = "[팀장] 수정 모달에 띄울 이미지 리턴", description = "수정 버튼을 클릭하면 해당 주문의 사진을 리턴합니다")
-    public ResponseEntity<Resource> getImg(@PathVariable("orderId") Long orderId) {
-        try {
-            Resource resource = commonOrderService.getImg(orderId);
-
-            // 파일이 존재하고 읽을 수 있는 경우 리턴
-            return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG) // 이미지 타입에 따라 적절히 변경
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                    .body(resource);
-        } catch (BusinessException | IOException e) {
-            // BusinessException이 발생하면 예외 처리
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-        }
+    public ResponseEntity<String> getImg(@PathVariable("orderId") Long orderId) {
+        String response = commonOrderService.getImg(orderId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/centerdirector/department")

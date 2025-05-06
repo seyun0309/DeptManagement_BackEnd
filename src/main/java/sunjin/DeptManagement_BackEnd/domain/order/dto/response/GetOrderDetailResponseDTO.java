@@ -19,5 +19,5 @@ public class GetOrderDetailResponseDTO {
     private String firstProcDate;
     private String secondProcDate;
     private String rejectionDescription;
-    private Resource resource;
+    private String receiptImgUrl;
 }

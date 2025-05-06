@@ -40,11 +40,8 @@ public class Order extends BaseEntity {
     @Column
     private String rejectionDescription;
 
-    @Column(nullable = false)
-    private String receiptImgPath;
-
     @Column
-    private String ImgURL;
+    private String receiptImgUrl;
 
     @Column
     private LocalDateTime firstProcDate;
@@ -61,13 +58,12 @@ public class Order extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Department department;
 
-    public void updateInfo(OrderType productType, String productName, int totalPrice, String description, String imgUrl, String receiptImgPath) {
+    public void updateInfo(OrderType productType, String productName, int totalPrice, String description, String imgUrl) {
         this.orderType = productType;
         this.storeName = productName;
         this.totalPrice = totalPrice;
         this.description = description;
-        this.ImgURL = imgUrl;
-        this.receiptImgPath = receiptImgPath;
+        this.receiptImgUrl = imgUrl;
     }
 
     public void submit(ApprovalStatus status, LocalDateTime firstProcDate, LocalDateTime secondProcDate) {
