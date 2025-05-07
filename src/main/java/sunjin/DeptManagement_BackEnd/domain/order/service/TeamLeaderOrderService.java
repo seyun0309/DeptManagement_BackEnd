@@ -11,6 +11,7 @@ import sunjin.DeptManagement_BackEnd.domain.order.dto.request.ApproveOrDeniedReq
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.*;
 import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
+import sunjin.DeptManagement_BackEnd.global.auth.service.RedisUtil;
 import sunjin.DeptManagement_BackEnd.global.enums.ApprovalStatus;
 import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.enums.Role;
@@ -31,9 +32,11 @@ public class TeamLeaderOrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
+    private  final RedisUtil redisUtil;
 
     public void submitOrder(List<Long> ids) {
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Long currentUserId = extractUserIdAfterTokenValidation();
+
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
         if(member.getRefreshToken() != null) {
@@ -48,7 +51,8 @@ public class TeamLeaderOrderService {
     }
 
     public DepartmentInfoResponseDTO getDepartmentInfo() {
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Long currentUserId = extractUserIdAfterTokenValidation();
+
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
         Long departmentId = member.getDepartment().getId();
@@ -74,7 +78,8 @@ public class TeamLeaderOrderService {
     }
 
     public List<?> getDepartmentDetails(Long memberId, List<String> statuses) {
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Long currentUserId = extractUserIdAfterTokenValidation();
+
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         if(member.getRefreshToken() != null) {
@@ -247,7 +252,8 @@ public class TeamLeaderOrderService {
     }
 
     public List<ProgressOrdersResponseDTO> getFirstProgressOrders() {
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Long currentUserId = extractUserIdAfterTokenValidation();
+
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (member.getRefreshToken() != null) {
@@ -285,7 +291,8 @@ public class TeamLeaderOrderService {
 
     @Transactional
     public void approveOrRejectOrderByTeamLeader(Long orderId, ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Long currentUserId = extractUserIdAfterTokenValidation();
+
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (member.getRefreshToken() != null) {
@@ -299,5 +306,20 @@ public class TeamLeaderOrderService {
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
+    }
+
+    public Long extractUserIdAfterTokenValidation() {
+        String token = jwtProvider.extractIdFromTokenInHeader();
+
+        String status = redisUtil.getData(token);
+        if (status == null) {
+            throw new BusinessException(ErrorCode.INVALID_ACCESS_TOKEN); // 등록되지 않은 토큰 (ex. 위조/만료/비정상 발급 등)
+        }
+
+        if ("logout".equals(status)) {
+            throw new BusinessException(ErrorCode.LOGGED_OUT_ACCESS_TOKEN); //리프래시 토큰을 사용해서 액세스 토큰 다시 발급받기
+        }
+
+        return jwtProvider.extractIdFromToken(token);
     }
 }

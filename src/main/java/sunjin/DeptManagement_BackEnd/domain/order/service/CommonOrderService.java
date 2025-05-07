@@ -20,6 +20,7 @@ import sunjin.DeptManagement_BackEnd.domain.order.dto.request.CreateOrderRequest
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.*;
 import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
+import sunjin.DeptManagement_BackEnd.global.auth.service.RedisUtil;
 import sunjin.DeptManagement_BackEnd.global.enums.ApprovalStatus;
 import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.enums.OrderType;
@@ -37,18 +38,17 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class CommonOrderService {
-    @Value("${image.upload.dir}")
-    private String imageUploadDir;
-
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
     private final S3ImageService s3ImageService;
+    private final RedisUtil redisUtil;
 
     @Transactional
     public void createOrder(MultipartFile image, CreateOrderRequestDTO createOrderRequestDTO) {
         // 현재 로그인 정보 확인
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Long currentUserId = extractUserIdAfterTokenValidation();
+
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         if(member.getRefreshToken() != null) {
@@ -85,8 +85,9 @@ public class CommonOrderService {
         }
     }
 
-    public GetOrderDetailResponseDTO getOrderDetails(Long orderId) throws IOException {
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+    public GetOrderDetailResponseDTO getOrderDetails(Long orderId) {
+        Long currentUserId = extractUserIdAfterTokenValidation();
+
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         if(member.getRefreshToken() != null){
@@ -116,8 +117,10 @@ public class CommonOrderService {
         }
     }
 
+    //TODO 코드 읽기 쉽게
     public List<?> getOrders(List<String> statuses) {
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Long currentUserId = extractUserIdAfterTokenValidation();
+
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (member.getRefreshToken() != null) {
@@ -283,7 +286,8 @@ public class CommonOrderService {
     }
 
     public String getImg(Long orderId) {
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Long currentUserId = extractUserIdAfterTokenValidation();
+
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
         if (member.getRefreshToken() != null) {
@@ -299,7 +303,7 @@ public class CommonOrderService {
     @Transactional
     public void updateOrder(MultipartFile image, CreateOrderRequestDTO createOrderRequestDTO, Long orderId) {
         //해당 주문 신청자와 현재 로그인한 사람 비교
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        long currentUserId = jwtProvider.extractIdFromToken(jwtProvider.extractIdFromTokenInHeader());
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         if(member.getRefreshToken() != null) {
@@ -338,7 +342,8 @@ public class CommonOrderService {
 
     @Transactional
     public void deleteOrder(Long orderId) {
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
+        Long currentUserId = extractUserIdAfterTokenValidation();
+
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
         if(member.getRefreshToken() != null) {
@@ -362,5 +367,20 @@ public class CommonOrderService {
 
     public String saveBoardImages(MultipartFile image) {
         return s3ImageService.upload(image);
+    }
+
+    public Long extractUserIdAfterTokenValidation() {
+        String token = jwtProvider.extractIdFromTokenInHeader();
+
+        String status = redisUtil.getData(token);
+        if (status == null) {
+            throw new BusinessException(ErrorCode.INVALID_ACCESS_TOKEN); // 등록되지 않은 토큰 (ex. 위조/만료/비정상 발급 등)
+        }
+
+        if ("logout".equals(status)) {
+            throw new BusinessException(ErrorCode.LOGGED_OUT_ACCESS_TOKEN); //리프래시 토큰을 사용해서 액세스 토큰 다시 발급받기
+        }
+
+        return jwtProvider.extractIdFromToken(token);
     }
 }
