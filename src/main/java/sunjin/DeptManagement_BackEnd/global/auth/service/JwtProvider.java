@@ -14,6 +14,7 @@ import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.GeneratedTokenDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.SecurityMemberDTO;
 import sunjin.DeptManagement_BackEnd.global.config.JwtProperties;
+import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.enums.Role;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
@@ -32,6 +33,8 @@ import static sunjin.DeptManagement_BackEnd.global.enums.ErrorCode.MISMATCH_REFR
 public class JwtProvider {
     private final JwtProperties jwtConfig;
     private final MemberRepository memberRepository;
+    private final RedisUtil redisUtil;
+
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
     private final HttpServletRequest request;
 
@@ -57,6 +60,8 @@ public class JwtProvider {
         String userName = securityMemberDTO.getUserName();
         Role role = securityMemberDTO.getRole();
 
+        redisUtil.setDataExpire(accessToken, "login", ACCESS_TOKEN_PERIOD);
+
         saveRefreshToken(securityMemberDTO.getId(), refreshToken);
 
         return GeneratedTokenDTO.builder()
@@ -79,37 +84,39 @@ public class JwtProvider {
 
     @Transactional
     public GeneratedTokenDTO reissueToken(String refreshToken) {
-        GeneratedTokenDTO generatedTokenDTO;
-        String reissuedRefreshToken;
-        String reissuedAccessToken;
-        Claims claims = verifyToken(refreshToken);
+        Claims claims;
+
+        try {
+            claims = verifyToken(refreshToken);
+        } catch (JwtException e) {
+            throw new BusinessException(ErrorCode.EXPIRED_REFRESH_TOKEN); // 로그인으로 이동
+        }
+
         SecurityMemberDTO securityMemberDTO = SecurityMemberDTO.fromClaims(claims);
 
-        Optional<Member> findMember = memberRepository.findById(securityMemberDTO.getId());
+        Member member = memberRepository.findById(securityMemberDTO.getId())
+                .orElseThrow(() -> new BusinessException(MEMBER_NOT_FOUND));
 
-        if (findMember.isEmpty()) {
-            throw new BusinessException(MEMBER_NOT_FOUND);
-        }
-
-        Member member = findMember.get();
-
-        if (member.getRefreshToken() == null) {
+        if (!refreshToken.equals(member.getRefreshToken())) {
             throw new BusinessException(MISMATCH_REFRESH_TOKEN);
         }
 
-        if (!member.getRefreshToken().equals(refreshToken)) {
-            throw new BusinessException(MISMATCH_REFRESH_TOKEN);
-        }
+        String reissuedAccessToken = generateToken(securityMemberDTO, ACCESS_TOKEN_PERIOD);
+        String reissuedRefreshToken = generateToken(securityMemberDTO, REFRESH_TOKEN_PERIOD);
 
-        reissuedRefreshToken = generateToken(securityMemberDTO, REFRESH_TOKEN_PERIOD);
-        reissuedAccessToken = generateToken(securityMemberDTO, ACCESS_TOKEN_PERIOD);
-        member.setRefreshToken(refreshToken);
-
+        // 새로운 토큰 저장
+        member.setRefreshToken(reissuedRefreshToken);
         memberRepository.save(member);
 
-        generatedTokenDTO = GeneratedTokenDTO.builder().accessToken(reissuedAccessToken).refreshToken(reissuedRefreshToken).build();
+        // Redis 등록
+        redisUtil.setDataExpire(reissuedAccessToken, "login", ACCESS_TOKEN_PERIOD);
 
-        return generatedTokenDTO;
+        return GeneratedTokenDTO.builder()
+                .accessToken(reissuedAccessToken)
+                .refreshToken(reissuedRefreshToken)
+                .userName(securityMemberDTO.getUserName())
+                .role(securityMemberDTO.getRole())
+                .build();
     }
 
     public Claims verifyToken(String token) {
@@ -126,18 +133,26 @@ public class JwtProvider {
         }
     }
 
-    public long extractIdFromTokenInHeader() {
+    public long getRemainingExpiration(String token) {
+        Date expiration = Jwts.parser()
+                .setSigningKey(token)
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+
+        return expiration.getTime() - System.currentTimeMillis();
+    }
+
+    public String extractIdFromTokenInHeader() {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-            return extractIdFromToken(token);
+            return header.substring(7);
         } else {
             throw new IllegalArgumentException("Token not found in header.");
         }
     }
 
     public long extractIdFromToken(String token) {
-
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(token);
             String idString = claims.getBody().get("jti", String.class);
