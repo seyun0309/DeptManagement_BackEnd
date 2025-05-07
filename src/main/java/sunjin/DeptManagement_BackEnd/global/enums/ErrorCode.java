@@ -42,6 +42,10 @@ public enum ErrorCode {
     // Token
     MISMATCH_REFRESH_TOKEN(401, "T001", "유효하지 않은 리프레시 토큰입니다"),
     NO_PERMISSION(401, "T002", "요청에 대한 권한이 없습니다"),
+    EXPIRED_REFRESH_TOKEN(401, "T003", "유효시간이 만료된 리프레시 토큰입니다"),
+    LOGGED_OUT_ACCESS_TOKEN(401, "T004", "로그아웃된 토큰입니다"),
+    INVALID_ACCESS_TOKEN(401, "T005", "유효하지 않은 액세스 토큰입니다"),
+
 
     //S3(Image)
     EMPTY_FILE_EXCEPTION(400, "S001", "파일이 비어있습니다"),
