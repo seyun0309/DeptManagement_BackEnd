@@ -1,12 +1,11 @@
 package sunjin.DeptManagement_BackEnd.global.auth.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sunjin.DeptManagement_BackEnd.domain.department.domain.Department;
-import sunjin.DeptManagement_BackEnd.domain.department.repository.DepartmentRepository;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.GeneratedTokenDTO;
@@ -17,7 +16,6 @@ import sunjin.DeptManagement_BackEnd.global.auth.dto.response.SignUpResponseDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.response.VerifyResponseDTO;
 import sunjin.DeptManagement_BackEnd.global.enums.DeptType;
 import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
-import sunjin.DeptManagement_BackEnd.global.enums.Role;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
 import java.util.Optional;
@@ -32,6 +30,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
+    private final RedisUtil redisUtil;
 
     @Transactional
     public SignUpResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) {
@@ -72,6 +71,7 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional
     public GeneratedTokenDTO login(LoginRequestDTO loginRequestDTO) {
         Optional<Member> findLoginId = memberRepository.findByLoginId(loginRequestDTO.getLoginId());
 
@@ -97,10 +97,8 @@ public class AuthService {
 
     @Transactional
     public void logout() {
-        long currentUserId = jwtProvider.extractIdFromTokenInHeader();
-        Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
-
-        member.setRefreshToken(null);
-        memberRepository.save(member);
+        String token = jwtProvider.extractIdFromTokenInHeader();
+        long expiration = jwtProvider.getRemainingExpiration(token);
+        redisUtil.setDataExpire(token, "logout", expiration);
     }
 }
