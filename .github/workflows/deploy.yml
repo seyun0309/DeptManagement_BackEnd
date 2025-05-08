@@ -20,6 +20,7 @@ jobs:
 
       - name: Add known hosts
         run: |
+          mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Copy project to EC2
