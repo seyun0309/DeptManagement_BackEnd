@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 @OpenAPIDefinition(
         info = @Info(
                 contact = @Contact(
-                        name = "DeptManagement",
+                        name = "부서 금전 관리 시스템의 API 명세서",
                         url = "https://github.com/SunJinInternShip/DeptManagement_BackEnd"
                 ),
                 description = "DeptManagement Service",
