@@ -5,7 +5,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.notification.domain.Notification;
-import sunjin.DeptManagement_BackEnd.domain.notification.dto.response.GetDetailNotificationDTO;
 import sunjin.DeptManagement_BackEnd.domain.notification.dto.response.GetNotificationsDTO;
 import sunjin.DeptManagement_BackEnd.domain.notification.repository.NotificationRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
