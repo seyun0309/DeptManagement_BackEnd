@@ -50,8 +50,3 @@
 <img src = "https://github.com/user-attachments/assets/fbeb1e65-54e5-4869-8b07-612a9dd23e83" width = "600">
 <img src = "https://github.com/user-attachments/assets/1c08e1f9-0e6c-4b51-a292-8d957cc9bbde" width = "600">
 <img src = "https://github.com/user-attachments/assets/50af1e4a-7d10-4a81-ba77-4616943d0264" width = "600">
-
-
-
-
-
