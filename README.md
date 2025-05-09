@@ -30,6 +30,7 @@
 - 결재 단계별 승인/반려 처리 및 상태 추적
 - Swagger를 통한 API 문서 자동화
 <br>
+<br>
 
 ## 🗂️ ERD
 <img src = "https://github.com/user-attachments/assets/262a14a0-aab4-4591-b4fd-51602519f5ab">
