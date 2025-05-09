@@ -1,6 +1,8 @@
 package sunjin.DeptManagement_BackEnd.global.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,12 +21,11 @@ import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class AuthController {
+public class AuthController implements AuthControllerDocs{
     private final AuthService authService;
     private final JwtProvider jwtProvider;
 
     @PostMapping("/signup")
-    @Operation(summary = "회원가입 로직", description = "부서코드, 사용자 이름, 아이디, 비밀번호를 입력하면 검증 후 회원가입을 진행합니다.")
     public ResponseEntity<SignUpResponseDTO> signUp(@RequestBody @Valid SignUpRequestDTO signUpRequestDTO) {
         SignUpResponseDTO responseDTO = authService.signUp(signUpRequestDTO);
         return ResponseEntity.ok(responseDTO);
@@ -56,7 +57,7 @@ public class AuthController {
 
     @PatchMapping("/tokens")
     @Operation(summary = "토큰 재발급", description = "Access Token과 남은 기간에 따라 Refresh Token을 재발급 합니다.")
-    public GeneratedTokenDTO tokenModify(@Valid @RequestBody TokenModifyDTO tokenModifyRequest) {
-        return jwtProvider.reissueToken(tokenModifyRequest.getRefreshToken());
+    public GeneratedTokenDTO tokenModify(@RequestHeader("Refresh-Token") String refreshToken) {
+        return jwtProvider.reissueToken(refreshToken);
     }
 }
