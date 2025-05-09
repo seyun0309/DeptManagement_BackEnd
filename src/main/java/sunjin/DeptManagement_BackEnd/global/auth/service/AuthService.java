@@ -31,6 +31,7 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final RedisUtil redisUtil;
+    private final AuthUtil authUtil;
 
     @Transactional
     public SignUpResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) {
@@ -75,29 +76,31 @@ public class AuthService {
     public GeneratedTokenDTO login(LoginRequestDTO loginRequestDTO) {
         Optional<Member> findLoginId = memberRepository.findByLoginId(loginRequestDTO.getLoginId());
 
-        if (findLoginId.isPresent()) {
-            Member member = findLoginId.get();
-
-            if (passwordEncoder.matches(loginRequestDTO.getPassword(), member.getPassword())) {
-                SecurityMemberDTO securityMemberDTO = SecurityMemberDTO.builder()
-                        .id(member.getId())
-                        .loginId(member.getLoginId())
-                        .userName(member.getUserName())
-                        .role(member.getRole())
-                        .build();
-
-                return jwtProvider.generateTokens(securityMemberDTO);
-            } else {
-                throw new BusinessException(ErrorCode.INVALID_PASSWORD);
-            }
-        } else {
+        // 아이디 확인
+        if (findLoginId.isEmpty()) {
             throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
         }
+
+        Member member = findLoginId.get();
+
+        // 인코딩된 비밀번호, 사용자 입력 비밀번호 일치 확인
+        if (!(passwordEncoder.matches(loginRequestDTO.getPassword(), member.getPassword()))) {
+            throw new BusinessException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        SecurityMemberDTO securityMemberDTO = SecurityMemberDTO.builder()
+                .id(member.getId())
+                .loginId(member.getLoginId())
+                .userName(member.getUserName())
+                .role(member.getRole())
+                .build();
+
+        return jwtProvider.generateTokens(securityMemberDTO);
     }
 
     @Transactional
     public void logout() {
-        String token = jwtProvider.extractIdFromTokenInHeader();
+        String token = authUtil.extractTokenAfterTokenValidation();
         long expiration = jwtProvider.getRemainingExpiration(token);
         redisUtil.setDataExpire(token, "logout", expiration);
     }
