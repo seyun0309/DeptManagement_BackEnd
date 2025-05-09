@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
+import sunjin.DeptManagement_BackEnd.domain.notification.service.NotificationService;
 import sunjin.DeptManagement_BackEnd.domain.order.domain.Order;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.request.ApproveOrDeniedRequestDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.*;
 import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
+import sunjin.DeptManagement_BackEnd.global.auth.service.AuthUtil;
 import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
 import sunjin.DeptManagement_BackEnd.global.auth.service.RedisUtil;
 import sunjin.DeptManagement_BackEnd.global.enums.ApprovalStatus;
@@ -31,11 +33,11 @@ public class TeamLeaderOrderService {
 
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
-    private final JwtProvider jwtProvider;
-    private  final RedisUtil redisUtil;
+    private final NotificationService notificationService;
+    private final AuthUtil authUtil;
 
     public void submitOrder(List<Long> ids) {
-        Long currentUserId = extractUserIdAfterTokenValidation();
+        Long currentUserId =authUtil. extractUserIdAfterTokenValidation();
 
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
@@ -51,7 +53,7 @@ public class TeamLeaderOrderService {
     }
 
     public DepartmentInfoResponseDTO getDepartmentInfo() {
-        Long currentUserId = extractUserIdAfterTokenValidation();
+        Long currentUserId = authUtil.extractUserIdAfterTokenValidation();
 
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_APPLICANT));
 
@@ -78,7 +80,7 @@ public class TeamLeaderOrderService {
     }
 
     public List<?> getDepartmentDetails(Long memberId, List<String> statuses) {
-        Long currentUserId = extractUserIdAfterTokenValidation();
+        Long currentUserId = authUtil.extractUserIdAfterTokenValidation();
 
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -252,7 +254,7 @@ public class TeamLeaderOrderService {
     }
 
     public List<ProgressOrdersResponseDTO> getFirstProgressOrders() {
-        Long currentUserId = extractUserIdAfterTokenValidation();
+        Long currentUserId = authUtil.extractUserIdAfterTokenValidation();
 
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -291,7 +293,7 @@ public class TeamLeaderOrderService {
 
     @Transactional
     public void approveOrRejectOrderByTeamLeader(Long orderId, ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
-        Long currentUserId = extractUserIdAfterTokenValidation();
+        Long currentUserId = authUtil.extractUserIdAfterTokenValidation();
 
         Member member = memberRepository.findById(currentUserId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -303,23 +305,12 @@ public class TeamLeaderOrderService {
                 order.denied(ApprovalStatus.DENIED, LocalDateTime.now(), order.getSecondProcDate(), approveOrDeniedRequestDTO.getDeniedDescription());
             }
             orderRepository.save(order);
+
+            // 알림 보내기
+            String message = "비품 신청이 " + order.getStatus() + " 처리되었습니다.";
+            notificationService.sendToUser(order.getMember().getId(), message);
         } else {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
-    }
-
-    public Long extractUserIdAfterTokenValidation() {
-        String token = jwtProvider.extractIdFromTokenInHeader();
-
-        String status = redisUtil.getData(token);
-        if (status == null) {
-            throw new BusinessException(ErrorCode.INVALID_ACCESS_TOKEN); // 등록되지 않은 토큰 (ex. 위조/만료/비정상 발급 등)
-        }
-
-        if ("logout".equals(status)) {
-            throw new BusinessException(ErrorCode.LOGGED_OUT_ACCESS_TOKEN); //리프래시 토큰을 사용해서 액세스 토큰 다시 발급받기
-        }
-
-        return jwtProvider.extractIdFromToken(token);
     }
 }
