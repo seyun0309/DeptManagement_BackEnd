@@ -84,13 +84,7 @@ public class JwtProvider {
 
     @Transactional
     public GeneratedTokenDTO reissueToken(String refreshToken) {
-        Claims claims;
-
-        try {
-            claims = verifyToken(refreshToken);
-        } catch (JwtException e) {
-            throw new BusinessException(ErrorCode.EXPIRED_REFRESH_TOKEN); // 로그인으로 이동
-        }
+        Claims claims = verifyToken(refreshToken);
 
         SecurityMemberDTO securityMemberDTO = SecurityMemberDTO.fromClaims(claims);
 
