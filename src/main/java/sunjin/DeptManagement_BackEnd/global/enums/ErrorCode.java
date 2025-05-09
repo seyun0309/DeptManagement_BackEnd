@@ -22,9 +22,9 @@ public enum ErrorCode {
 
     // Member
     MEMBER_NOT_FOUND(404, "M001", "존재하지 않는 회원입니다"),
-    MEMBER_PROFILE_DUPLICATION(400, "M002", "이미 존재하는 회원입니다"),
-    INVALID_PASSWORD(404,"M003", " 잘못된 비밀번호 입니다"),
-    INVALID_APPLICANT(404, "M004", "해당 주문을 신청한 사람이 아닙니다"),
+    MEMBER_PROFILE_DUPLICATION(409, "M002", "이미 존재하는 회원입니다"),
+    INVALID_PASSWORD(401,"M003", " 잘못된 비밀번호 입니다"),
+    INVALID_APPLICANT(403, "M004", "해당 주문을 신청한 사람이 아닙니다"),
 
     // Department
     DEPARTMENT_NOT_FOUND(404, "D001", "존재하는 부서가 없습니다"),
@@ -44,7 +44,7 @@ public enum ErrorCode {
     NO_PERMISSION(401, "T002", "요청에 대한 권한이 없습니다"),
     EXPIRED_REFRESH_TOKEN(401, "T003", "유효시간이 만료된 리프레시 토큰입니다"),
     LOGGED_OUT_ACCESS_TOKEN(401, "T004", "로그아웃된 토큰입니다"),
-    INVALID_ACCESS_TOKEN(401, "T005", "유효하지 않은 액세스 토큰입니다"),
+    INVALID_ACCESS_TOKEN(404, "T005", "유효하지 않은 액세스 토큰입니다"),
 
 
     //S3(Image)
