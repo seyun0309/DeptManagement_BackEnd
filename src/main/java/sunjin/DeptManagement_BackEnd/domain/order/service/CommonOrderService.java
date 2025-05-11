@@ -96,8 +96,8 @@ public class CommonOrderService {
 
             String orderType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
             String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
-            String firstProcDateFormatted = order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
-            String secondProcDateFormated = order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
+            String firstProcDateFormatted = order.getFirstProcDate() != null ?order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : "-";
+            String secondProcDateFormatted = order.getSecondProcDate() != null ? order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : "-";
             String receiptImgUrl = order.getReceiptImgUrl();
 
             return GetOrderDetailResponseDTO.builder()
@@ -109,7 +109,7 @@ public class CommonOrderService {
                     .description(order.getDescription())
                     .createdAt(createDateFormatted)
                     .firstProcDate(firstProcDateFormatted)
-                    .secondProcDate(secondProcDateFormated)
+                    .secondProcDate(secondProcDateFormatted)
                     .rejectionDescription(order.getRejectionDescription())
                     .receiptImgUrl(receiptImgUrl)
                     .build();
