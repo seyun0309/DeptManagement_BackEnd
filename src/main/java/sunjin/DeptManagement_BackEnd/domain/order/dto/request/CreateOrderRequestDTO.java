@@ -21,7 +21,7 @@ public class CreateOrderRequestDTO {
     private int totalPrice;
 
     // 적요
-    private  String description;
+    private String description;
 
     // 문자열을 ProductType enum으로 변환하는 메서드
     public OrderType getProductTypeEnum() {
