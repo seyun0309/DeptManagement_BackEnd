@@ -4,12 +4,14 @@ services:
     build: .
     ports:
       - "8080:8080"
+    restart: always
     depends_on:
       - db
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/deptmanagement
       SPRING_DATASOURCE_USERNAME: seyunkim
       SPRING_DATASOURCE_PASSWORD: 1234
+      AWS_REGION: ap-northeast-2
   db:
     image: postgres:14
     ports:
