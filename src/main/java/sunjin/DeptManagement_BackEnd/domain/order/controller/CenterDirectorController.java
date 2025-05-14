@@ -23,7 +23,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class CenterDirectorController {
+public class CenterDirectorController implements CenterDirectorControllerDocs{
     private final CenterDirectorService centerDirectorService;
     private final CommonOrderService commonOrderService;
 

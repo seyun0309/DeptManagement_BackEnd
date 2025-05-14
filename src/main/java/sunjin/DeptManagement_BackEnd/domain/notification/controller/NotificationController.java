@@ -13,16 +13,14 @@ import sunjin.DeptManagement_BackEnd.domain.notification.service.NotificationSer
 
 import java.util.List;
 
-@Tag(name = "알림", description = "알림함 조회")
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/notifications")
-public class NotificationController {
+public class NotificationController implements NotificationControllerDocs{
     private final NotificationService notificationService;
 
     @GetMapping()
-    @Operation(summary = "알림함 내역 조회", description = "알림함에 있는 모든 알림들을 조회합니다(알림은 최대 6개만 보여줌)")
     public ResponseEntity<List<GetNotificationsDTO>> getNotifications() {
         List<GetNotificationsDTO> response = notificationService.getNotifications();
         return ResponseEntity.ok(response);
