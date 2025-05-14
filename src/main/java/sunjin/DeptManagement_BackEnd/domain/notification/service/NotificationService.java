@@ -7,10 +7,7 @@ import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.notification.domain.Notification;
 import sunjin.DeptManagement_BackEnd.domain.notification.dto.response.GetNotificationsDTO;
 import sunjin.DeptManagement_BackEnd.domain.notification.repository.NotificationRepository;
-import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
-import sunjin.DeptManagement_BackEnd.global.auth.service.RedisUtil;
-import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
-import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
+import sunjin.DeptManagement_BackEnd.global.auth.service.AuthUtil;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -22,8 +19,7 @@ public class NotificationService {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final NotificationRepository notificationRepository;
-    private final JwtProvider jwtProvider;
-    private final RedisUtil redisUtil;
+    private final AuthUtil authUtil;
 
     public void sendToUser(Long userId, String message) {
         // DB 저장
@@ -45,7 +41,7 @@ public class NotificationService {
 
     public List<GetNotificationsDTO> getNotifications() {
         // 사용자 정보 가져오기
-        Long userId = extractUserIdAfterTokenValidation();
+        Long userId = authUtil.extractUserIdAfterTokenValidation();
 
         // 사용자 정보로 알림 찾기
         List<Notification> notificationList = notificationRepository.findByReceiverId(userId);
@@ -72,21 +68,5 @@ public class NotificationService {
         // 최대 6개까지만 응답
         int limit = Math.min(response.size(), 6);
         return response.subList(0, limit);
-    }
-
-
-    public Long extractUserIdAfterTokenValidation() {
-        String token = jwtProvider.extractIdFromTokenInHeader();
-
-        String status = redisUtil.getData(token);
-        if (status == null) {
-            throw new BusinessException(ErrorCode.INVALID_ACCESS_TOKEN); // 등록되지 않은 토큰 (ex. 위조/만료/비정상 발급 등)
-        }
-
-        if ("logout".equals(status)) {
-            throw new BusinessException(ErrorCode.LOGGED_OUT_ACCESS_TOKEN); //리프래시 토큰을 사용해서 액세스 토큰 다시 발급받기
-        }
-
-        return jwtProvider.extractIdFromToken(token);
     }
 }
