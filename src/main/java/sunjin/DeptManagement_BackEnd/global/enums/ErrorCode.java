@@ -24,15 +24,15 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(404, "M001", "존재하지 않는 회원입니다"),
     MEMBER_PROFILE_DUPLICATION(409, "M002", "이미 존재하는 회원입니다"),
     INVALID_PASSWORD(401,"M003", " 잘못된 비밀번호 입니다"),
-    INVALID_APPLICANT(403, "M004", "해당 주문을 신청한 사람이 아닙니다"),
 
-    // Department
+    // Department,
     DEPARTMENT_NOT_FOUND(404, "D001", "존재하는 부서가 없습니다"),
 
     // Order
     ORDER_NOT_FOUND(404, "O001", "존재하는 주문이 없습니다"),
     ORDER_NOT_WAITING(400, "O002", "주문이 대기중일 때만 가능합니다"),
     INVALID_STATUS(400, "O003", "올바른 주문 상태가 아닙니다."),
+    INVALID_APPLICANT(401, "M004", "해당 주문을 신청한 사람이 아닙니다"),
 
     // Receipt
     RECEIPT_NOT_FOUND(404, "R001", "존재하는 영수증이 없습니다"),
