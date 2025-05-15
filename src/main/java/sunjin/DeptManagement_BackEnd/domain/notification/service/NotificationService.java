@@ -41,10 +41,10 @@ public class NotificationService {
 
     public List<GetNotificationsDTO> getNotifications() {
         // 사용자 정보 가져오기
-        Long userId = authUtil.extractUserIdAfterTokenValidation();
+        Member member = authUtil.extractMemberAfterTokenValidation();
 
         // 사용자 정보로 알림 찾기
-        List<Notification> notificationList = notificationRepository.findByReceiverId(userId);
+        List<Notification> notificationList = notificationRepository.findByReceiverId(member.getId());
 
         // DTO 매핑해서 리턴
         List<GetNotificationsDTO> response = new ArrayList<>();
