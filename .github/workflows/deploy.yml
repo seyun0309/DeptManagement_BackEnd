@@ -30,6 +30,11 @@ jobs:
           scp -i ~/.ssh/deploy_key.pem build/libs/DeptManagement_BackEnd-0.0.1-SNAPSHOT.jar \
           ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/DeptManagement_BackEnd/app.jar
 
+      - name: Upload docker-compose.yml to EC2
+        run: |
+          scp -i ~/.ssh/deploy_key.pem docker-compose.yml \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/DeptManagement_BackEnd/docker-compose.yml
+
       - name: Deploy on EC2 (Docker rebuild & run)
         run: |
           ssh -i ~/.ssh/deploy_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
