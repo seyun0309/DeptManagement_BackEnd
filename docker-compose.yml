@@ -4,7 +4,7 @@ services:
     build:
       context: .
       args:
-        JAR-FILE: app.jar
+        JAR_FILE: app.jar
     ports:
       - "8080:8080"
     restart: always

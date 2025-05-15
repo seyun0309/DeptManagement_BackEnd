@@ -23,7 +23,7 @@ jobs:
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Build JAR file
-        run: ./gradlew build -x test
+        run: ./gradlew clean build -x test
 
       - name: Upload JAR file to EC2
         run: |
