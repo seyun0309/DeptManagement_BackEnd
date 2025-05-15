@@ -27,21 +27,12 @@ public interface AuthControllerDocs {
             @ApiResponse(responseCode = "201", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = SignUpResponseDTO.class))),
             @ApiResponse(responseCode = "409", description = "아이디 중복", content = @Content)
     })
-    @Parameters(value = {
-            @Parameter(name = "deptCode", description = "부서 코드"),
-            @Parameter(name = "userName", description = "사용자 이름"),
-            @Parameter(name = "loginId", description = "아이디"),
-            @Parameter(name = "password", description = "비밀번호")
-    })
     public ResponseEntity<SignUpResponseDTO> signUp(@RequestBody @Valid SignUpRequestDTO signUpRequestDTO);
 
     @Operation(summary = "부서 인증", description = "필요 파라미터 : 부서코드")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "부서 인증 성공", content = @Content(schema = @Schema(implementation = VerifyResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 부서", content = @Content)
-    })
-    @Parameters(value = {
-            @Parameter(name = "deptCode", description = "부서 코드")
     })
     public ResponseEntity<VerifyResponseDTO> verifyDept(@RequestBody VerifyRequestDTO verifyRequestDTO);
 
@@ -52,10 +43,6 @@ public interface AuthControllerDocs {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 아이디", content = @Content),
             @ApiResponse(responseCode = "401", description = "비밀번호 불일치", content = @Content)
     })
-    @Parameters(value = {
-            @Parameter(name = "loginId", description = "아이디"),
-            @Parameter(name = "password", description = "비밀번호")
-    })
     public ResponseEntity<GeneratedTokenDTO> login(@RequestBody @Valid LoginRequestDTO loginRequestDTO);
 
 
@@ -64,9 +51,6 @@ public interface AuthControllerDocs {
             @ApiResponse(responseCode = "200", description = "로그아웃 성공", content = @Content),
             @ApiResponse(responseCode = "404", description = "유효하지 않은 토큰", content = @Content),
             @ApiResponse(responseCode = "401", description = "이미 로그아웃된 토큰", content = @Content)
-    })
-    @Parameters(value = {
-            @Parameter(name = "deptCode", description = "부서 코드"),
     })
     public ResponseEntity<String> logout();
 

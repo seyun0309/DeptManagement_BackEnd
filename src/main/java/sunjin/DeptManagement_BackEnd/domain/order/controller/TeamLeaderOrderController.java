@@ -41,7 +41,7 @@ public class TeamLeaderOrderController {
 
     @GetMapping("/teamleader/{orderId}")
     @Operation(summary = "[팀장] 본인의 주문 상세 조회")
-    public ResponseEntity<GetOrderDetailResponseDTO> getOrder(@PathVariable("orderId") Long orderId) throws IOException {
+    public ResponseEntity<GetOrderDetailResponseDTO> getOrder(@PathVariable("orderId") Long orderId) {
         GetOrderDetailResponseDTO response = commonOrderService.getOrderDetails(orderId);
         return ResponseEntity.ok(response);
     }
