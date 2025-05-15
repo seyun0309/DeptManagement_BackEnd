@@ -12,7 +12,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/deptmanagement
       SPRING_DATASOURCE_USERNAME: seyunkim
       SPRING_DATASOURCE_PASSWORD: 1234
-      SPRING_REDIS_HOST: localhost
+      SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       AWS_REGION: ap-northeast-2
   db:
