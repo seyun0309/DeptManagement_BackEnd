@@ -27,7 +27,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class TeamLeaderOrderController {
+public class TeamLeaderOrderController implements TeamLeaderOrderControllerDocs{
     private final CommonOrderService commonOrderService;
     private final TeamLeaderOrderService teamLeaderOrderService;
 
