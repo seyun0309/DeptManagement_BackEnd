@@ -17,6 +17,7 @@ import sunjin.DeptManagement_BackEnd.global.auth.dto.GeneratedTokenDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.request.LoginRequestDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.request.SignUpRequestDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.request.VerifyRequestDTO;
+import sunjin.DeptManagement_BackEnd.global.auth.dto.response.ReissuedTokenResponseDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.response.SignUpResponseDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.response.VerifyResponseDTO;
 
@@ -71,5 +72,5 @@ public interface AuthControllerDocs {
                     in = ParameterIn.HEADER
             )
     })
-    public GeneratedTokenDTO tokenModify(@RequestHeader("Refresh-Token") String refreshToken);
+    public ReissuedTokenResponseDTO tokenModify(@RequestHeader("Refresh-Token") String refreshToken);
 }
