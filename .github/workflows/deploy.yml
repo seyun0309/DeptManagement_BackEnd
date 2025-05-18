@@ -25,10 +25,10 @@ jobs:
       - name: Build JAR file
         run: ./gradlew clean build -x test
 
-      - name: Upload project to EC2
+      - name: Upload JAR file to EC2
         run: |
-          scp -i ~/.ssh/deploy_key.pem -r . \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/DeptManagement_BackEnd
+          scp -i ~/.ssh/deploy_key.pem build/libs/DeptManagement_BackEnd-0.0.1-SNAPSHOT.jar \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/DeptManagement_BackEnd/app.jar
 
       - name: Upload docker-compose.yml to EC2
         run: |
