@@ -13,6 +13,7 @@ import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.GeneratedTokenDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.SecurityMemberDTO;
+import sunjin.DeptManagement_BackEnd.global.auth.dto.response.ReissuedTokenResponseDTO;
 import sunjin.DeptManagement_BackEnd.global.config.JwtProperties;
 import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.enums.Role;
@@ -56,10 +57,14 @@ public class JwtProvider {
     public GeneratedTokenDTO generateTokens(SecurityMemberDTO securityMemberDTO) {
         String accessToken = generateToken(securityMemberDTO, ACCESS_TOKEN_PERIOD);
         String refreshToken = generateToken(securityMemberDTO, REFRESH_TOKEN_PERIOD);
+
         String userName = securityMemberDTO.getUserName();
         Role role = securityMemberDTO.getRole();
 
+
         redisUtil.setDataExpire(accessToken, "login", ACCESS_TOKEN_PERIOD);
+
+        redisUtil.deleteData(securityMemberDTO.getLoginId());
         redisUtil.setDataExpire(securityMemberDTO.getLoginId(), refreshToken, REFRESH_TOKEN_PERIOD);
 
         saveRefreshToken(securityMemberDTO.getId(), refreshToken);
@@ -83,7 +88,7 @@ public class JwtProvider {
     }
 
     @Transactional
-    public GeneratedTokenDTO reissueToken(String refreshToken) {
+    public ReissuedTokenResponseDTO reissueToken(String refreshToken) {
         // 리프레시 토큰 통해서 사용자 로그인 아이디 추출
         String loginId = getLoginIdFromToken(refreshToken);
 
@@ -116,15 +121,15 @@ public class JwtProvider {
         member.setRefreshToken(reissuedRefreshToken);
         memberRepository.save(member);
 
+        redisUtil.deleteData(loginId);
+
         // Redis 등록
         redisUtil.setDataExpire(reissuedAccessToken, "login", ACCESS_TOKEN_PERIOD);
-        redisUtil.setDataExpire(securityMemberDTO.getLoginId(), refreshToken, REFRESH_TOKEN_PERIOD);
+        redisUtil.setDataExpire(securityMemberDTO.getLoginId(), reissuedRefreshToken, REFRESH_TOKEN_PERIOD);
 
-        return GeneratedTokenDTO.builder()
+        return ReissuedTokenResponseDTO.builder()
                 .accessToken(reissuedAccessToken)
                 .refreshToken(reissuedRefreshToken)
-                .userName(securityMemberDTO.getUserName())
-                .role(securityMemberDTO.getRole())
                 .build();
     }
 
@@ -144,7 +149,7 @@ public class JwtProvider {
 
     public long getRemainingExpiration(String token) {
         Date expiration = Jwts.parser()
-                .setSigningKey(token)
+                .setSigningKey(signingKey)
                 .parseClaimsJws(token)
                 .getBody()
                 .getExpiration();
