@@ -1,5 +1,4 @@
 FROM openjdk:17
-ARG JAR_FILE=app.jar
-COPY ${JAR_FILE} app.jar
+COPY build/libs/DeptManagement_BackEnd-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
