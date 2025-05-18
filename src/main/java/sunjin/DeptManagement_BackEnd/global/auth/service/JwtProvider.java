@@ -34,7 +34,6 @@ public class JwtProvider {
     private final JwtProperties jwtConfig;
     private final MemberRepository memberRepository;
     private final RedisUtil redisUtil;
-
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
     private final HttpServletRequest request;
 
@@ -61,6 +60,7 @@ public class JwtProvider {
         Role role = securityMemberDTO.getRole();
 
         redisUtil.setDataExpire(accessToken, "login", ACCESS_TOKEN_PERIOD);
+        redisUtil.setDataExpire(securityMemberDTO.getLoginId(), refreshToken, REFRESH_TOKEN_PERIOD);
 
         saveRefreshToken(securityMemberDTO.getId(), refreshToken);
 
@@ -84,6 +84,19 @@ public class JwtProvider {
 
     @Transactional
     public GeneratedTokenDTO reissueToken(String refreshToken) {
+        // 리프레시 토큰 통해서 사용자 로그인 아이디 추출
+        String loginId = getLoginIdFromToken(refreshToken);
+
+        // 로그인 아이디 통해서 레디스에 저장되어 있는 사용자 리프레시 토큰 추출
+        String redisToken = redisUtil.getData(loginId);
+
+        // 헤더로 받은 리프레시 토큰 | 레디스에 있는 리프레시 토큰 비교
+        if (!refreshToken.equals(redisToken)) { // 토큰 탈취,
+            redisUtil.deleteData(loginId); // 불일치시 해당 사용자 리프레시 토큰 레디스에서 삭제
+            throw new BusinessException(ErrorCode.TOKEN_REISSUE_FORBIDDEN); // 재로그인 유도
+        }
+
+        // 리프레시 토큰 유효성 검사
         Claims claims = verifyToken(refreshToken);
 
         SecurityMemberDTO securityMemberDTO = SecurityMemberDTO.fromClaims(claims);
@@ -95,6 +108,7 @@ public class JwtProvider {
             throw new BusinessException(MISMATCH_REFRESH_TOKEN);
         }
 
+        // 액세스 토큰, 리프레시 토큰 재발급
         String reissuedAccessToken = generateToken(securityMemberDTO, ACCESS_TOKEN_PERIOD);
         String reissuedRefreshToken = generateToken(securityMemberDTO, REFRESH_TOKEN_PERIOD);
 
@@ -104,6 +118,7 @@ public class JwtProvider {
 
         // Redis 등록
         redisUtil.setDataExpire(reissuedAccessToken, "login", ACCESS_TOKEN_PERIOD);
+        redisUtil.setDataExpire(securityMemberDTO.getLoginId(), refreshToken, REFRESH_TOKEN_PERIOD);
 
         return GeneratedTokenDTO.builder()
                 .accessToken(reissuedAccessToken)
@@ -153,6 +168,15 @@ public class JwtProvider {
             return Long.parseLong(idString);
         } catch (JwtException | IllegalArgumentException | NullPointerException e) {
             throw new IllegalArgumentException("Error extracting ID from token.");
+        }
+    }
+
+    public String getLoginIdFromToken(String token) {
+        try {
+            Jws<Claims> claims = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(token);
+            return claims.getBody().get("loginId", String.class); // 커스텀 클레임에서 꺼냄
+        } catch (JwtException | IllegalArgumentException | NullPointerException e) {
+            throw new IllegalArgumentException("Error extracting loginId from token.");
         }
     }
 
