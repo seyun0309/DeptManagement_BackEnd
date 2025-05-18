@@ -91,7 +91,7 @@ public class JwtProvider {
         String redisToken = redisUtil.getData(loginId);
 
         // 헤더로 받은 리프레시 토큰 | 레디스에 있는 리프레시 토큰 비교
-        if (!refreshToken.equals(redisToken)) { // 토큰 탈취,
+        if (!refreshToken.equals(redisToken)) { // 토큰 유효성(탈취) 검사
             redisUtil.deleteData(loginId); // 불일치시 해당 사용자 리프레시 토큰 레디스에서 삭제
             throw new BusinessException(ErrorCode.TOKEN_REISSUE_FORBIDDEN); // 재로그인 유도
         }
