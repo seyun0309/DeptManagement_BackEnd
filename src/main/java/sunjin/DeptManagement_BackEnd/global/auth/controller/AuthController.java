@@ -1,18 +1,16 @@
 package sunjin.DeptManagement_BackEnd.global.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.GeneratedTokenDTO;
-import sunjin.DeptManagement_BackEnd.global.auth.dto.TokenModifyDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.request.LoginRequestDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.request.SignUpRequestDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.request.VerifyRequestDTO;
+import sunjin.DeptManagement_BackEnd.global.auth.dto.response.ReissuedTokenResponseDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.response.SignUpResponseDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.dto.response.VerifyResponseDTO;
 import sunjin.DeptManagement_BackEnd.global.auth.service.AuthService;
@@ -45,19 +43,19 @@ public class AuthController implements AuthControllerDocs{
     public ResponseEntity<GeneratedTokenDTO> login(@RequestBody @Valid LoginRequestDTO loginRequestDTO) {
         GeneratedTokenDTO generatedTokenDTO = authService.login(loginRequestDTO);
         return ResponseEntity.ok(generatedTokenDTO);
-
     }
 
     @PatchMapping("/logout")
     @Operation(summary = "로그아웃 로직", description = "사용자의 엑세스 토큰을 로그아웃 처리함")
     public ResponseEntity<String> logout() {
+        log.info("API 호출");
         authService.logout();
         return ResponseEntity.ok("로그아웃이 정상적으로 되었습니다");
     }
 
     @PatchMapping("/tokens")
     @Operation(summary = "토큰 재발급", description = "Access Token과 남은 기간에 따라 Refresh Token을 재발급 합니다.")
-    public GeneratedTokenDTO tokenModify(@RequestHeader("Refresh-Token") String refreshToken) {
+    public ReissuedTokenResponseDTO tokenModify(@RequestHeader("Refresh-Token") String refreshToken) {
         return jwtProvider.reissueToken(refreshToken);
     }
 }
