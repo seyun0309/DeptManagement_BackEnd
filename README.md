@@ -33,7 +33,7 @@
 <br>
 
 ## 🗂️ ERD
-<img src = "https://github.com/user-attachments/assets/262a14a0-aab4-4591-b4fd-51602519f5ab">
+<img src = "https://github.com/user-attachments/assets/eb06f1a7-4275-4ba1-bd5d-61e467fdf66c">
 <br>
 <br>
 
