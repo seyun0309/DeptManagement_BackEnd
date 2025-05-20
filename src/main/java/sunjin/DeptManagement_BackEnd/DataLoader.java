@@ -10,6 +10,8 @@ import sunjin.DeptManagement_BackEnd.domain.department.domain.Department;
 import sunjin.DeptManagement_BackEnd.domain.department.repository.DepartmentRepository;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
+import sunjin.DeptManagement_BackEnd.domain.notification.repository.NotificationRepository;
+import sunjin.DeptManagement_BackEnd.domain.notification.service.NotificationService;
 import sunjin.DeptManagement_BackEnd.domain.order.domain.Order;
 import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.global.enums.ApprovalStatus;
@@ -33,22 +35,25 @@ public class DataLoader implements ApplicationRunner {
     private final JdbcTemplate jdbcTemplate;
     private final PasswordEncoder passwordEncoder;
     private final OrderRepository orderRepository;
+    private final NotificationRepository notificationRepository;
 
     @Autowired
-    public DataLoader(DepartmentRepository departmentRepository, MemberRepository memberRepository, JdbcTemplate jdbcTemplate, PasswordEncoder passwordEncoder, OrderRepository orderRepository) {
+    public DataLoader(DepartmentRepository departmentRepository, MemberRepository memberRepository, JdbcTemplate jdbcTemplate, PasswordEncoder passwordEncoder, OrderRepository orderRepository, NotificationRepository notificationRepository) {
         this.departmentRepository = departmentRepository;
         this.memberRepository = memberRepository;
         this.jdbcTemplate = jdbcTemplate;
         this.passwordEncoder = passwordEncoder;
         this.orderRepository = orderRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         // 부서 초기 데이터 삽입
-        orderRepository.deleteAll();  // 1. 먼저 Order 삭제
-        memberRepository.deleteAll(); // 2. 그 다음 Member 삭제
-        departmentRepository.deleteAll(); // 3. 그 다음 Department 삭제
+        notificationRepository.deleteAll();
+        orderRepository.deleteAll();
+        memberRepository.deleteAll();
+        departmentRepository.deleteAll();
 
         // 시퀀스 초기화
         jdbcTemplate.execute("ALTER SEQUENCE orders_id_seq RESTART WITH 1");
