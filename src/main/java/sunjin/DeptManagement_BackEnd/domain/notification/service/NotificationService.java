@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
+import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
 import sunjin.DeptManagement_BackEnd.domain.notification.domain.Notification;
 import sunjin.DeptManagement_BackEnd.domain.notification.dto.response.GetNotificationsDTO;
 import sunjin.DeptManagement_BackEnd.domain.notification.repository.NotificationRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.service.AuthUtil;
+import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
+import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -20,13 +23,16 @@ public class NotificationService {
     private final SimpMessagingTemplate messagingTemplate;
     private final NotificationRepository notificationRepository;
     private final AuthUtil authUtil;
+    private final MemberRepository memberRepository;
 
     public void sendToUser(Long userId, String message) {
+        Member member = memberRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+
         // DB 저장
         Notification notification = Notification.builder()
                 .message(message)
                 .isRead(false)
-                .receiver(Member.builder().id(userId).build())
+                .receiver(member)
                 .build();
 
         notificationRepository.save(notification);
