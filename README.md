@@ -31,17 +31,20 @@
 <br>
 
 ## ⚙️ 프로젝트 아키텍처
-<img src="https://github.com/user-attachments/assets/a80a5a8c-ce54-4668-95e9-67b1df05e740">
+<img src="https://github.com/user-attachments/assets/a80a5a8c-ce54-4668-95e9-67b1df05e740" width = "600">
 <br>
 <br>
 
 ## 🗂️ ERD
-<img src = "https://github.com/user-attachments/assets/eb06f1a7-4275-4ba1-bd5d-61e467fdf66c">
+<img src = "https://github.com/user-attachments/assets/eb06f1a7-4275-4ba1-bd5d-61e467fdf66c" width = "600">
 <br>
 <br>
 
 ## 🔌 API
-<img src = "https://github.com/user-attachments/assets/3edb0982-ffa7-4cdd-8650-f6f0a9a9a799">
+<img src = "https://github.com/user-attachments/assets/c3ea1f21-6c24-43a5-be02-5481a3e24649" width = "600">
+<img src = "https://github.com/user-attachments/assets/96d30cff-5650-44a4-be5b-63aa848a09ff" width = "600">
+<img src = "https://github.com/user-attachments/assets/1bd68eeb-be56-4873-abf0-da7f09724322" width = "600">
+<img src = "https://github.com/user-attachments/assets/a7d84c4c-4057-4cbf-97b1-7a6947adc98f" width = "600">
 <br>
 <br>
 
