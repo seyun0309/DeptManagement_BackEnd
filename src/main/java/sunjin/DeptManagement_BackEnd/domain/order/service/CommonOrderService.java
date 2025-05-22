@@ -285,8 +285,13 @@ public class CommonOrderService {
         // ProductType 변환
         OrderType productType = createOrderRequestDTO.getProductTypeEnum();
 
-        // 이미지 저장
-        String imgUrl = s3ImageService.upload(image);
+        // 이미지 저장 (이미지 유무 확인
+        String imgUrl = null;
+        if(image.isEmpty()) {
+            imgUrl = order.getReceiptImgUrl();
+        } else {
+            imgUrl = s3ImageService.upload(image);
+        }
 
         order.updateInfo(
                 productType,
@@ -315,7 +320,6 @@ public class CommonOrderService {
 
         order.setDeletedAt(LocalDateTime.now());
         orderRepository.save(order);
-        throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
     }
 
     public String saveBoardImages(MultipartFile image) {
