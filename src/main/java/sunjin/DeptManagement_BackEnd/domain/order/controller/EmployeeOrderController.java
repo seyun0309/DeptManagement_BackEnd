@@ -1,24 +1,16 @@
 package sunjin.DeptManagement_BackEnd.domain.order.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.request.CreateOrderRequestDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.GetOrderDetailResponseDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.service.CommonOrderService;
 import sunjin.DeptManagement_BackEnd.domain.order.service.EmployeeOrderService;
-import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
-import java.io.IOException;
 import java.util.List;
 
 
@@ -61,7 +53,7 @@ public class EmployeeOrderController implements EmployeeOrderControllerDocs{
     }
 
     @PatchMapping("/employee/{orderId}")
-    public ResponseEntity<String> updateOrder(@RequestPart(name = "image") MultipartFile image,
+    public ResponseEntity<String> updateOrder(@RequestPart(name = "image", required = false) MultipartFile image,
                                               @RequestPart(name = "request") @Valid CreateOrderRequestDTO createOrderRequestDTO,
                                               @PathVariable("orderId") Long orderId){
         commonOrderService.updateOrder(image, createOrderRequestDTO, orderId);
