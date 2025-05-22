@@ -75,6 +75,9 @@ public interface EmployeeOrderControllerDocs {
     @Operation(summary = "[사원] 본인의 주문 수정", description = "물품 타입, 물품 이름, 개당 가격, 수량를 입력하면 물품 수정이 진행됩니다")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "수정 성공", content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "대기 상태가 아닌 주문", content = @Content),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 주문", content = @Content),
+            @ApiResponse(responseCode = "401", description = "주문자 불일치", content = @Content),
             @ApiResponse(responseCode = "404", description = "유효하지 않은 토큰", content = @Content),
             @ApiResponse(responseCode = "401", description = "로그아웃된 토큰", content = @Content)
     })
@@ -89,6 +92,9 @@ public interface EmployeeOrderControllerDocs {
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "삭제 성공", content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 주문", content = @Content),
+            @ApiResponse(responseCode = "400", description = "대기 상태가 아닌 주문", content = @Content),
+            @ApiResponse(responseCode = "401", description = "주문자 불일치", content = @Content),
             @ApiResponse(responseCode = "404", description = "유효하지 않은 토큰", content = @Content),
             @ApiResponse(responseCode = "401", description = "로그아웃된 토큰", content = @Content)
     })
