@@ -12,7 +12,6 @@ import sunjin.DeptManagement_BackEnd.domain.order.dto.request.CreateOrderRequest
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.*;
 import sunjin.DeptManagement_BackEnd.domain.order.repository.OrderRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.service.AuthUtil;
-import sunjin.DeptManagement_BackEnd.global.auth.service.JwtProvider;
 import sunjin.DeptManagement_BackEnd.global.enums.ApprovalStatus;
 import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.enums.OrderType;
