@@ -284,13 +284,10 @@ public class CommonOrderService {
         // ProductType 변환
         OrderType productType = createOrderRequestDTO.getProductTypeEnum();
 
-        // 이미지 저장 (이미지 유무 확인
-        String imgUrl = null;
-        if(image.isEmpty()) {
-            imgUrl = order.getReceiptImgUrl();
-        } else {
-            imgUrl = s3ImageService.upload(image);
-        }
+        // 이미지 저장 (이미지 유무 확인)
+        String imgUrl = (image == null || image.isEmpty())
+                ? order.getReceiptImgUrl()
+                : s3ImageService.upload(image);
 
         order.updateInfo(
                 productType,
