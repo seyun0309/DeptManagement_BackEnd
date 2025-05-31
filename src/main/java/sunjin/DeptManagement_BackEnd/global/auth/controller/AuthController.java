@@ -48,7 +48,6 @@ public class AuthController implements AuthControllerDocs{
     @PatchMapping("/logout")
     @Operation(summary = "로그아웃 로직", description = "사용자의 엑세스 토큰을 로그아웃 처리함")
     public ResponseEntity<String> logout() {
-        log.info("API 호출");
         authService.logout();
         return ResponseEntity.ok("로그아웃이 정상적으로 되었습니다");
     }
