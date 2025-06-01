@@ -185,6 +185,11 @@ public class JwtProvider {
         }
     }
 
+    public Long extractUserIdFromTokenIfValid(String token) {
+        Claims claims = verifyToken(token);
+        return Long.valueOf(claims.getId());
+    }
+
     private void saveRefreshToken(Long id, String refreshToken) {
         Optional<Member> findMember = memberRepository.findById(id);
         findMember.ifPresent(member -> memberRepository.updateRefreshToken(member.getId(), refreshToken));
