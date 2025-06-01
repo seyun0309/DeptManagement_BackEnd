@@ -3,6 +3,7 @@ package sunjin.DeptManagement_BackEnd.domain.notification.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sunjin.DeptManagement_BackEnd.domain.member.domain.Member;
 import sunjin.DeptManagement_BackEnd.domain.member.repository.MemberRepository;
 import sunjin.DeptManagement_BackEnd.domain.notification.domain.Notification;
@@ -25,6 +26,7 @@ public class NotificationService {
     private final AuthUtil authUtil;
     private final MemberRepository memberRepository;
 
+    @Transactional
     public void sendToUser(Long userId, String message) {
         Member member = memberRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
