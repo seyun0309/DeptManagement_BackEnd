@@ -1,6 +1,7 @@
 package sunjin.DeptManagement_BackEnd.domain.notification.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,18 +11,21 @@ import sunjin.DeptManagement_BackEnd.domain.notification.domain.Notification;
 import sunjin.DeptManagement_BackEnd.domain.notification.dto.response.GetNotificationsDTO;
 import sunjin.DeptManagement_BackEnd.domain.notification.repository.NotificationRepository;
 import sunjin.DeptManagement_BackEnd.global.auth.service.AuthUtil;
+import sunjin.DeptManagement_BackEnd.global.config.websocket.SocketTextHandler;
 import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
+import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private final SocketTextHandler socketTextHandler;
     private final NotificationRepository notificationRepository;
     private final AuthUtil authUtil;
     private final MemberRepository memberRepository;
@@ -39,12 +43,12 @@ public class NotificationService {
 
         notificationRepository.save(notification);
 
-        // 실시간 전송
-        messagingTemplate.convertAndSendToUser(
-                userId.toString(),
-                "/queue/notifications",
-                message
-        );
+        // 실시간 WebSocket 전송
+        try {
+            socketTextHandler.sendToUser(userId, message);
+        } catch (IOException e) {
+            log.error("WebSocket 전송 실패: userId={}, message={}", userId, message, e);
+        }
     }
 
     public List<GetNotificationsDTO> getNotifications() {
