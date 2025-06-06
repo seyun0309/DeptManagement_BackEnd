@@ -1,5 +1,6 @@
 package sunjin.DeptManagement_BackEnd.domain.notification.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -16,15 +17,18 @@ import sunjin.DeptManagement_BackEnd.global.enums.ErrorCode;
 import sunjin.DeptManagement_BackEnd.global.error.exception.BusinessException;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
 
+    private final ObjectMapper objectMapper;
     private final SocketTextHandler socketTextHandler;
     private final NotificationRepository notificationRepository;
     private final AuthUtil authUtil;
@@ -45,7 +49,12 @@ public class NotificationService {
 
         // 실시간 WebSocket 전송
         try {
-            socketTextHandler.sendToUser(userId, message);
+            String json = objectMapper.writeValueAsString(Map.of(
+                    "message", message,
+                    "createdAt", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+            ));
+
+            socketTextHandler.sendToUser(userId, json);
         } catch (IOException e) {
             log.error("WebSocket 전송 실패: userId={}, message={}", userId, message, e);
         }
