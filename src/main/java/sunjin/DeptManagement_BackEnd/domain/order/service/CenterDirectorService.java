@@ -302,7 +302,7 @@ public class CenterDirectorService {
         orderRepository.save(order);
 
         // 알림 보내기
-        String message = "비품 신청이 " + order.getStatus() + " 처리되었습니다.";
+        String message = "비품 신청이 " + order.getStatus().getCode() + " 처리되었습니다.";
         notificationService.sendToUser(order.getMember().getId(), message);
     }
 }
