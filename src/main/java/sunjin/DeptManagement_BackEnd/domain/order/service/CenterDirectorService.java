@@ -291,7 +291,7 @@ public class CenterDirectorService {
 
     @Transactional
     public void approveOrRejectOrderByCenterDirector(Long orderId, ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
-        authUtil.extractMemberAfterTokenValidation();
+        Member member = authUtil.extractMemberAfterTokenValidation();
 
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
         if(approveOrDeniedRequestDTO.getIsApproved().equals("true")) {
@@ -302,7 +302,14 @@ public class CenterDirectorService {
         orderRepository.save(order);
 
         // 알림 보내기
-        String message = "비품 신청이 " + order.getStatus().getCode() + " 처리되었습니다.";
+        String message = String.format(
+                "[%s] %s(%s)님에 의해 상태가 '%s'로 변경되었습니다.",
+                order.getStoreName(),
+                member.getUserName(),
+                member.getRole().getDescription(),
+                order.getStatus().getCode()
+        );
+
         notificationService.sendToUser(order.getMember().getId(), message);
     }
 }
