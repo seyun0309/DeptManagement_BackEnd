@@ -32,7 +32,7 @@ public class SocketTextHandler extends TextWebSocketHandler {
         sessions.put(userId, session);
         sessionIdToUserId.put(session.getId(), userId);
 
-        log.info("WebSocket 연결됨: userId={}", userId);
+        log.info("WebSocket 연결됨: userId={} | sessionId={}", userId, session.getId());
     }
 
     @Override
