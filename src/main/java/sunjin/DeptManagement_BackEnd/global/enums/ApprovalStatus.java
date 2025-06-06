@@ -4,11 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum ApprovalStatus {
-    WAIT("wait","wait"),
-    IN_FIRST_PROGRESS("in_first_progress", "first"),
-    IN_SECOND_PROGRESS("in_second_progress", "second"),
-    DENIED("denied","denied"),
-    APPROVE("approve","approve");
+    WAIT("대기","wait"),
+    IN_FIRST_PROGRESS("1차 처리", "first"),
+    IN_SECOND_PROGRESS("2차 처리", "second"),
+    DENIED("반려","denied"),
+    APPROVE("승인","approve");
 
     private final String code ;
     private final String description;
