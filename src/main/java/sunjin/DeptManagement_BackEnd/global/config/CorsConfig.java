@@ -10,8 +10,8 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins(
-                        "http://52.78.13.76",
-                        "http://52.78.13.76:80",
+                        "http://54.180.86.172",
+                        "http://54.180.86.172:80",
                         "http://localhost:3000",
                         "http://sjdeptmanagement.duckdns.org")// 허용할 origin 목록
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS") // 허용할 HTTP 메서드
