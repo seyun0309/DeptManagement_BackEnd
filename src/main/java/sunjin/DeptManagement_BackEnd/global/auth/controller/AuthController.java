@@ -31,9 +31,8 @@ public class AuthController implements AuthControllerDocs{
 
     @PostMapping("/verify/department")
     @Operation(summary = "부서 검증 로직", description = "부서 코드를 검사합니다")
-    public ResponseEntity<VerifyResponseDTO> verifyDept(@RequestBody VerifyRequestDTO verifyRequestDTO) {
-        String deptCode = verifyRequestDTO.getDeptCode();
-        VerifyResponseDTO verifyResponseDTO = authService.verifyDeptCode(deptCode);
+    public ResponseEntity<VerifyResponseDTO> verifyDept(@RequestBody @Valid VerifyRequestDTO verifyRequestDTO) {
+        VerifyResponseDTO verifyResponseDTO = authService.verifyDeptCode(verifyRequestDTO.getDeptCode());
 
         return ResponseEntity.ok(verifyResponseDTO);
     }
