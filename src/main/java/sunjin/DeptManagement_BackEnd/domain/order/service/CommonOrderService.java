@@ -253,11 +253,15 @@ public class CommonOrderService {
     }
 
     public String getImg(Long orderId) {
+
+        // 1. 액세스 토큰 블랙리스트(로그인_로그아웃) / 유효성 검사
         authUtil.extractMemberAfterTokenValidation();
 
+        // 2. orderId를 통해서 Order 추출
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
+        // 3. 해당 Order의 이미지 Url 리턴
         return order.getReceiptImgUrl();
     }
 

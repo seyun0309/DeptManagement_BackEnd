@@ -78,5 +78,5 @@ public interface CenterDirectorControllerDocs {
 
     })
     @Parameter(name = "orderId", description = "URL에 포함된 주문 ID", in = ParameterIn.PATH)
-    public ResponseEntity<String> approveOrRejectOrderByTeamLeader(@PathVariable("orderId") Long orderId, @RequestBody ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO);
+    public ResponseEntity<String> approveOrRejectOrderByCenterDirector(@PathVariable("orderId") Long orderId, @RequestBody ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO);
 }

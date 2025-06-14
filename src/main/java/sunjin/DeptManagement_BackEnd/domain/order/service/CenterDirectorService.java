@@ -36,16 +36,25 @@ public class CenterDirectorService {
     private final AuthUtil authUtil;
 
     public List<DepartmentInfoResponseDTO> getDepartmentInfo() {
+
+        // 1. 액세스 토큰 블랙리스트(로그인_로그아웃) / 유효성 검사
         authUtil.extractMemberAfterTokenValidation();
 
+        // 2. 모든 부서 리스트 추출
         List<Department> allDepartment = departmentRepository.findAll();
+
+        // 3. 리턴타입에 맞는 List 생성
         List<DepartmentInfoResponseDTO> departmentInfoList = new ArrayList<>();
 
+        // 4. 추출했던 부서 List를 리턴 타입에 맞게 변경
         for (Department department : allDepartment) {
             String deptName = department.getDepartment().getDescription();
             Long deptId = department.getId();
+
+            // 해당 부서에 속한 사원들 리스트 추출
             List<Member> memberListByDeptId = memberRepository.findByDepartmentId(department.getId());
             List<MemberResponseDTO> memberInfoList = new ArrayList<>();
+
             for (Member member1 : memberListByDeptId) {
                 if(member1.getRole() != Role.CENTERDIRECTOR) {
                     MemberResponseDTO memberInfoDTO = MemberResponseDTO.builder()
@@ -56,13 +65,17 @@ public class CenterDirectorService {
                 }
             }
 
+            // 5. 부서와 사원들을 묶어서 DTO 생성
             DepartmentInfoResponseDTO departmentInfoDTO = DepartmentInfoResponseDTO.builder()
                     .deptName(deptName)
                     .deptId(deptId)
                     .members(memberInfoList)
                     .build();
+
             departmentInfoList.add(departmentInfoDTO);
         }
+
+        // 5. 클라이언트에 리턴
         return departmentInfoList;
     }
     public List<?> getDepartmentDetails(Long departmentId, Long memberId, List<String> statuses) {
@@ -291,17 +304,22 @@ public class CenterDirectorService {
 
     @Transactional
     public void approveOrRejectOrderByCenterDirector(Long orderId, ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
+
+        // 1. 액세스 토큰 블랙리스트(로그인_로그아웃) / 유효성 검사
         Member member = authUtil.extractMemberAfterTokenValidation();
 
+        // 2. orderId를 통해 Order 추출
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
-        if(approveOrDeniedRequestDTO.getIsApproved().equals("true")) {
+
+        // 3. 승인 / 반려 처리
+        if(approveOrDeniedRequestDTO.getIsApproved().equals("true")) { // "승인"인 경우
             order.submit(ApprovalStatus.APPROVE, order.getFirstProcDate(), LocalDateTime.now());
-        } else {
+        } else { // "반려"인 경우
             order.denied(ApprovalStatus.DENIED, order.getFirstProcDate(), LocalDateTime.now(), approveOrDeniedRequestDTO.getDeniedDescription());
         }
         orderRepository.save(order);
 
-        // 알림 보내기
+        // 4. 주문자에게 보낼 알림 메세지 생성
         String message = String.format(
                 "[%s] %s(%s)님에 의해 상태가 '%s'로 변경되었습니다.",
                 order.getStoreName(),
@@ -310,6 +328,7 @@ public class CenterDirectorService {
                 order.getStatus().getCode()
         );
 
+        // 5. 실시간 알림 전송
         notificationService.sendToUser(order.getMember().getId(), message);
     }
 }

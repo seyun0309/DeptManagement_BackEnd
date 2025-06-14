@@ -1,5 +1,6 @@
 package sunjin.DeptManagement_BackEnd.domain.order.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +49,7 @@ public class CenterDirectorController implements CenterDirectorControllerDocs{
     }
 
     @PostMapping("/department/submit/{orderId}")
-    public ResponseEntity<String> approveOrRejectOrderByTeamLeader(@PathVariable("orderId") Long orderId, @RequestBody ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
+    public ResponseEntity<String> approveOrRejectOrderByCenterDirector(@PathVariable("orderId") Long orderId, @Valid @RequestBody ApproveOrDeniedRequestDTO approveOrDeniedRequestDTO) {
         centerDirectorService.approveOrRejectOrderByCenterDirector(orderId, approveOrDeniedRequestDTO);
         return ResponseEntity.ok("처리가 완료되었습니다.");
     }

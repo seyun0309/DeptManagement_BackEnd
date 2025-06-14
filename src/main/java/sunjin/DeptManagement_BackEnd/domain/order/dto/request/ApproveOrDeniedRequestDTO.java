@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 public class ApproveOrDeniedRequestDTO {
 
+    @NotBlank
     @Schema(description = "승인(true) or 반려")
     private String isApproved;
 
