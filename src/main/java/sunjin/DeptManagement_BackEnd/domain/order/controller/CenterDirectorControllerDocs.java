@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.request.ApproveOrDeniedRequestDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.DepartmentInfoResponseDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.GetAllOrderDTO;
-import sunjin.DeptManagement_BackEnd.domain.order.dto.response.ProgressOrdersResponseDTO;
+import sunjin.DeptManagement_BackEnd.domain.order.dto.response.FirstProgressOrdersResponseDTO;
 
 import java.util.List;
 
@@ -63,12 +63,12 @@ public interface CenterDirectorControllerDocs {
     @Operation(summary = "[센터장] 팀장이 사원의 주문을 승인한 것과 팀장이 센터장에게 상신한 목록들 가져옴")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "조회 성공", content = @Content(
-                    array = @ArraySchema(schema = @Schema(implementation = ProgressOrdersResponseDTO.class))
+                    array = @ArraySchema(schema = @Schema(implementation = FirstProgressOrdersResponseDTO.class))
             )),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 회원", content = @Content),
             @ApiResponse(responseCode = "401", description = "로그인 필요", content = @Content)
     })
-    public ResponseEntity<List<ProgressOrdersResponseDTO>> getFirstProgressOrders();
+    public ResponseEntity<List<FirstProgressOrdersResponseDTO>> getSecondProgressOrders();
 
     @Operation(summary = "[센터장] 직원의 주문 승인/반려 처리")
     @ApiResponses(value = {

@@ -22,7 +22,7 @@ import sunjin.DeptManagement_BackEnd.domain.order.dto.request.CreateOrderRequest
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.DepartmentInfoResponseDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.GetAllOrderDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.GetOrderDetailResponseDTO;
-import sunjin.DeptManagement_BackEnd.domain.order.dto.response.ProgressOrdersResponseDTO;
+import sunjin.DeptManagement_BackEnd.domain.order.dto.response.FirstProgressOrdersResponseDTO;
 
 import java.util.List;
 
@@ -76,7 +76,7 @@ public interface TeamLeaderOrderControllerDocs {
             @RequestParam(value = "status", required = false) List<String> statuses);
 
     @Operation(summary = "[팀장] 사원이 팀장에게 상신한 목록들 가져옴")
-    public ResponseEntity<List<ProgressOrdersResponseDTO>> getFirstProgressOrders();
+    public ResponseEntity<List<FirstProgressOrdersResponseDTO>> getFirstProgressOrders();
 
     @Operation(summary = "[팀장] 사원의 주문을 승인/반려 처리함")
     @ApiResponses(value = {

@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.request.ApproveOrDeniedRequestDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.DepartmentInfoResponseDTO;
-import sunjin.DeptManagement_BackEnd.domain.order.dto.response.ProgressOrdersResponseDTO;
+import sunjin.DeptManagement_BackEnd.domain.order.dto.response.FirstProgressOrdersResponseDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.service.CenterDirectorService;
 import sunjin.DeptManagement_BackEnd.domain.order.service.CommonOrderService;
 
@@ -43,8 +43,8 @@ public class CenterDirectorController implements CenterDirectorControllerDocs{
     }
 
     @GetMapping("/department/progress")
-    public ResponseEntity<List<ProgressOrdersResponseDTO>> getFirstProgressOrders() {
-        List<ProgressOrdersResponseDTO> response = centerDirectorService.getSecondProgressOrders();
+    public ResponseEntity<List<FirstProgressOrdersResponseDTO>> getSecondProgressOrders() {
+        List<FirstProgressOrdersResponseDTO> response = centerDirectorService.getSecondProgressOrders();
         return ResponseEntity.ok(response);
     }
 

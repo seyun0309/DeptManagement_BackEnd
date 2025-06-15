@@ -95,7 +95,7 @@ public class TeamLeaderOrderService {
         }
 
         List<WaitOrdersResponseDTO> waitOrderDTOList = new ArrayList<>();
-        List<ProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
+        List<FirstProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
         List<SecondProgressOrderResponseDTO> secondProgressOrderResponseDTOList = new ArrayList<>();
         List<DeniedOrdersResponseDTO> deniedOrderDTOList = new ArrayList<>();
         List<ApproveOrdersResponseDTO> approveOrderDTOList = new ArrayList<>();
@@ -160,7 +160,7 @@ public class TeamLeaderOrderService {
                             .build();
                     waitOrderDTOList.add(waitOrderDTO);
                 } else if ("first".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS)) {
-                     ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
+                     FirstProgressOrdersResponseDTO progressOrderDTO = FirstProgressOrdersResponseDTO.builder()
                              .orderId(order.getId())
                              .applicantDeptName(applicantDeptName)
                              .applicant(applicantName)
@@ -237,11 +237,11 @@ public class TeamLeaderOrderService {
         }
     }
 
-    public List<ProgressOrdersResponseDTO> getFirstProgressOrders() {
+    public List<FirstProgressOrdersResponseDTO> getFirstProgressOrders() {
         Member member = authUtil.extractMemberAfterTokenValidation();
 
         List<Order> orders = orderRepository.findByStatusIsFirstProgress(member.getDepartment().getId(), ApprovalStatus.IN_FIRST_PROGRESS);
-        List<ProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
+        List<FirstProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
 
         for (Order order : orders) {
             // 시간 string으로 포맷
@@ -253,7 +253,7 @@ public class TeamLeaderOrderService {
             String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
             String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDepartment().getDescription() : null;
 
-            ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
+            FirstProgressOrdersResponseDTO progressOrderDTO = FirstProgressOrdersResponseDTO.builder()
                     .orderId(order.getId())
                     .applicantDeptName(applicantDeptName)
                     .applicant(applicantName)

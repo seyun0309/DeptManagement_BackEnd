@@ -111,7 +111,7 @@ public class CommonOrderService {
 
 
         List<WaitOrdersResponseDTO> waitOrderDTOList = new ArrayList<>();
-        List<ProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
+        List<FirstProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
         List<SecondProgressOrderResponseDTO> secondProgressOrderResponseDTOList = new ArrayList<>();
         List<DeniedOrdersResponseDTO> deniedOrderDTOList = new ArrayList<>();
         List<ApproveOrdersResponseDTO> approveOrderDTOList = new ArrayList<>();
@@ -175,7 +175,7 @@ public class CommonOrderService {
                             .build();
                     waitOrderDTOList.add(waitOrderDTO);
                 } else if ("first".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS)) {
-                    ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
+                    FirstProgressOrdersResponseDTO progressOrderDTO = FirstProgressOrdersResponseDTO.builder()
                             .orderId(order.getId())
                             .applicantDeptName(applicantDeptName)
                             .applicant(applicantName)

@@ -79,57 +79,63 @@ public class CenterDirectorService {
         return departmentInfoList;
     }
     public List<?> getDepartmentDetails(Long departmentId, Long memberId, List<String> statuses) {
+
+        // 1. 액세스 토큰 블랙리스트(로그인_로그아웃) / 유효성 검사
         authUtil.extractMemberAfterTokenValidation();
 
+        // 2. Order 담을 List 생성
         List<Order> orders;
+
+        // 3. 조건별(departmentId, memberId, statuses) 주문 목록 조회
         if (departmentId != null && memberId != null && (statuses != null && !statuses.isEmpty())) {
-            // Case 1: departmentId, memberId, and status are all not null
+            // Case 1: demartmentId, memberId, statuses가 모두 null이 아닌 경우
             List<ApprovalStatus> approvalStatuses = new ArrayList<>();
             for (String status : statuses) {
                 approvalStatuses.add(ApprovalStatus.fromDescription(status));
             }
             orders = orderRepository.findByDepartmentIdAndMemberAndStatusIn(departmentId, memberId, approvalStatuses);
         } else if (departmentId != null && memberId != null) {
-            // Case 2: departmentId and memberId are not null, status is null
+            // Case 2: statuses만 null인 경우
             List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
             orders = orderRepository.findByDepartmentIdAndMemberAndStatusIn(departmentId, memberId, progressStatuses);
         } else if (departmentId != null && (statuses != null && !statuses.isEmpty())) {
-            // Case 3: departmentId is not null, memberId is null, status is not null
+            // Case 3: memberId만 null인 경우
             List<ApprovalStatus> approvalStatuses = new ArrayList<>();
             for (String status : statuses) {
                 approvalStatuses.add(ApprovalStatus.fromDescription(status));
             }
             orders = orderRepository.findByDepartmentIdAndStatusIn(departmentId, approvalStatuses);
         } else if (departmentId != null) {
-            // Case 4: departmentId is not null, memberId and status are null
+            // Case 4: departmentId만 null이 아닌 경우
             List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
             orders = orderRepository.findByDepartmentIdAndStatusIn(departmentId, progressStatuses);
         } else if (memberId != null && (statuses != null && !statuses.isEmpty())) {
-            // Case 5: departmentId is null, memberId and status are not null
+            // Case 5: demartmentId만 null인 경우
             List<ApprovalStatus> approvalStatuses = new ArrayList<>();
             for (String status : statuses) {
                 approvalStatuses.add(ApprovalStatus.fromDescription(status));
             }
             orders = orderRepository.findByMemberIdAndStatusIn(memberId, approvalStatuses);
         } else if (memberId != null) {
-            // Case 6: departmentId is null, memberId is not null, status is null
+            // Case 6: memberId만 null이 아닌 경우
             List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
             orders = orderRepository.findByMemberIdAndStatusIn(memberId, progressStatuses);
         } else if ((statuses != null && !statuses.isEmpty())) {
-            // Case 7: departmentId and memberId are null, status is not null
+            // Case 7: statuses만 null아닌 경우
             List<ApprovalStatus> approvalStatuses = new ArrayList<>();
             for (String status : statuses) {
                 approvalStatuses.add(ApprovalStatus.fromDescription(status));
             }
             orders = orderRepository.findByStatusIn(approvalStatuses);
         } else {
-            // Case 8: departmentId, memberId, and status are all null
+            // Case 8: 모두 null인 경우
             List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
             orders = orderRepository.findByStatusIn(progressStatuses);
         }
 
+        // 4. DTO List 생성
         List<WaitOrdersResponseDTO> waitOrderDTOList = new ArrayList<>();
-        List<ProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
+        List<FirstProgressOrdersResponseDTO> firstProgressOrderDTOList = new ArrayList<>();
         List<SecondProgressOrderResponseDTO> secondProgressOrderResponseDTOList = new ArrayList<>();
         List<DeniedOrdersResponseDTO> deniedOrderDTOList = new ArrayList<>();
         List<ApproveOrdersResponseDTO> approveOrderDTOList = new ArrayList<>();
@@ -155,6 +161,7 @@ public class CenterDirectorService {
                     orderStatus = "2차 처리중";
                 }
             }
+
             String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
             String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDepartment().getDescription() : null;
 
@@ -193,7 +200,7 @@ public class CenterDirectorService {
                             .build();
                     waitOrderDTOList.add(waitOrderDTO);
                 } else if ("first".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS)) {
-                    ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
+                    FirstProgressOrdersResponseDTO progressOrderDTO = FirstProgressOrdersResponseDTO.builder()
                             .orderId(order.getId())
                             .applicantDeptName(applicantDeptName)
                             .applicant(applicantName)
@@ -204,7 +211,7 @@ public class CenterDirectorService {
                             .orderStatus(orderStatus)
                             .createdAt(createDateFormatted)
                             .build();
-                    progressOrderDTOList.add(progressOrderDTO);
+                    firstProgressOrderDTOList.add(progressOrderDTO);
                 } else if ("second".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_SECOND_PROGRESS)) {
                     String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                     SecondProgressOrderResponseDTO secondProgressOrderResponseDTO = SecondProgressOrderResponseDTO.builder()
@@ -255,27 +262,29 @@ public class CenterDirectorService {
             }
         }
 
-        if (statuses == null || statuses.size() > 1) {
-            return getAllOrderDTOList;
-        } else if ("wait".equalsIgnoreCase(statuses.get(0))) {
-            return waitOrderDTOList;
-        } else if ("first".equalsIgnoreCase(statuses.get(0))) {
-            return progressOrderDTOList;
-        } else if ("second".equalsIgnoreCase(statuses.get(0))) {
-            return secondProgressOrderResponseDTOList;
-        } else if ("denied".equalsIgnoreCase(statuses.get(0))) {
-            return deniedOrderDTOList;
-        } else {
-            return approveOrderDTOList;
-        }
+        if (statuses == null || statuses.size() > 1) return getAllOrderDTOList;
+        return switch (statuses.get(0).toLowerCase()) {
+            case "wait" -> waitOrderDTOList;
+            case "first" -> firstProgressOrderDTOList;
+            case "second" -> secondProgressOrderResponseDTOList;
+            case "denied" -> deniedOrderDTOList;
+            default -> approveOrderDTOList;
+        };
     }
 
-    public List<ProgressOrdersResponseDTO> getSecondProgressOrders() {
+    public List<FirstProgressOrdersResponseDTO> getSecondProgressOrders() {
+
+        // 1. 액세스 토큰 블랙리스트(로그인_로그아웃) / 유효성 검사
         authUtil.extractMemberAfterTokenValidation();
 
+        // 2. "2차 처리 중"인 Order List 추출
         List<Order> orders = orderRepository.findByStatusIsSecondProgress(ApprovalStatus.IN_SECOND_PROGRESS);
-        List<ProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
 
+        // 3. 리턴 타입으로 List 생성
+        List<FirstProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
+
+
+        // 4. 리턴 타입 필드에 맞게 매핑
         for (Order order : orders) {
             // 시간 string으로 포맷
             String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
@@ -286,7 +295,7 @@ public class CenterDirectorService {
             String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
             String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDepartment().getDescription() : null;
 
-            ProgressOrdersResponseDTO progressOrderDTO = ProgressOrdersResponseDTO.builder()
+            FirstProgressOrdersResponseDTO progressOrderDTO = FirstProgressOrdersResponseDTO.builder()
                     .orderId(order.getId())
                     .applicantDeptName(applicantDeptName)
                     .applicant(applicantName)
@@ -299,6 +308,8 @@ public class CenterDirectorService {
                     .build();
             progressOrderDTOList.add(progressOrderDTO);
         }
+
+        // 5. 클라이언트에 리턴
         return progressOrderDTOList;
     }
 

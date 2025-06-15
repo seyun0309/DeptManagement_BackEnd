@@ -11,7 +11,7 @@ import sunjin.DeptManagement_BackEnd.domain.order.dto.request.ApproveOrDeniedReq
 import sunjin.DeptManagement_BackEnd.domain.order.dto.request.CreateOrderRequestDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.DepartmentInfoResponseDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.dto.response.GetOrderDetailResponseDTO;
-import sunjin.DeptManagement_BackEnd.domain.order.dto.response.ProgressOrdersResponseDTO;
+import sunjin.DeptManagement_BackEnd.domain.order.dto.response.FirstProgressOrdersResponseDTO;
 import sunjin.DeptManagement_BackEnd.domain.order.service.CommonOrderService;
 import sunjin.DeptManagement_BackEnd.domain.order.service.TeamLeaderOrderService;
 
@@ -72,8 +72,8 @@ public class TeamLeaderOrderController implements TeamLeaderOrderControllerDocs{
 
     @GetMapping("/teamleader/department/progress")
     @Operation(summary = "[팀장] 사원이 팀장에게 상신한 목록들 가져옴")
-    public ResponseEntity<List<ProgressOrdersResponseDTO>> getFirstProgressOrders() {
-        List<ProgressOrdersResponseDTO> response = teamLeaderOrderService.getFirstProgressOrders();
+    public ResponseEntity<List<FirstProgressOrdersResponseDTO>> getFirstProgressOrders() {
+        List<FirstProgressOrdersResponseDTO> response = teamLeaderOrderService.getFirstProgressOrders();
         return ResponseEntity.ok(response);
     }
 
