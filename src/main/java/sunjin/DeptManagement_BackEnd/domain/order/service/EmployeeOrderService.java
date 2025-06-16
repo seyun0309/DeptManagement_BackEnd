@@ -24,8 +24,11 @@ public class EmployeeOrderService {
 
     @Transactional
     public void submitOrder(List<Long> ids) {
+
+        // 1. 액세스 토큰 블랙리스트(로그인_로그아웃) / 유효성 검사
         authUtil.extractMemberAfterTokenValidation();
 
+        // 2. ids를 하나씩 꺼내서 상신 처리(IN_FIRST_PROGRESS) 후 재저장
         for(Long orderId : ids) {
             Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
             order.submit(ApprovalStatus.IN_FIRST_PROGRESS, null, null);

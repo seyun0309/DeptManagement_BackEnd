@@ -31,21 +31,23 @@ public class CommonOrderService {
 
     @Transactional
     public void createOrder(MultipartFile image, CreateOrderRequestDTO createOrderRequestDTO) {
-        // 현재 로그인 정보 확인
+
+        // 1. 액세스 토큰 블랙리스트(로그인_로그아웃) / 유효성 검사
         Member member = authUtil.extractMemberAfterTokenValidation();
 
-        // 이미지 저장
+        // 2. 이미지 s3 저장 후 url 받아옴
         String imgUrl = null;
         if (image != null && !image.isEmpty()) {
             imgUrl = saveBoardImages(image);
         }
 
+        // 3. 사용자 부서 정보 가져오기
         Department department = member.getDepartment();
 
-        // ProductType 변환
+        // 4. 주문 타입 가져오기
         OrderType productType = createOrderRequestDTO.getProductTypeEnum();
 
-        // 주문 매핑
+        // 5. 주문 객체 생성
         Order order = Order.builder()
                 .orderType(productType)
                 .storeName(createOrderRequestDTO.getStoreName())
@@ -60,15 +62,19 @@ public class CommonOrderService {
                 .department(department)
                 .build();
 
-        // 주문 저장
+        // 6. 주문 저장
         orderRepository.save(order);
     }
 
     public GetOrderDetailResponseDTO getOrderDetails(Long orderId) {
+
+        // 1. 액세스 토큰 블랙리스트(로그인_로그아웃) / 유효성 검사
         Member member = authUtil.extractMemberAfterTokenValidation();
 
+        // 2. orderId를 통해서 Order 추출
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
+        // 3. 주문 상세 DTO 생성 및 클라이언트에 리턴
         String orderType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
         String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
         String firstProcDateFormatted = order.getFirstProcDate() != null ?order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : "-";
@@ -90,55 +96,46 @@ public class CommonOrderService {
                 .build();
     }
 
-    //TODO 코드 읽기 쉽게
     public List<?> getOrders(List<String> statuses) {
+
+        // 1. 액세스 토큰 블랙리스트(로그인_로그아웃) / 유효성 검사
         Member member = authUtil.extractMemberAfterTokenValidation();
 
-        List<Order> orders;
-        List<ApprovalStatus> approvalStatuses = new ArrayList<>();
-        if(statuses != null && !statuses.isEmpty()) {
-            for (String status : statuses) {
-                approvalStatuses.add(ApprovalStatus.fromDescription(status));
-            }
-            orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), approvalStatuses);
-        }  else {
-            List<String> statusString = List.of("first", "second", "approve", "denied");
-            for (String status : statusString) {
-                approvalStatuses.add(ApprovalStatus.fromDescription(status));
-            }
-            orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), approvalStatuses);
-        }
+        // 2. statuses가 들어온 경우 해당 상태로 변환, 없으면 모든 statuses로 처리
+        List<ApprovalStatus> statusList = (statuses != null && !statuses.isEmpty())
+                ? statuses.stream().map(ApprovalStatus::fromDescription).toList()
+                : List.of(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
 
+        // 3. DB에서 꺼내온 Order 리스트 초기화
+        List<Order> orders = orderRepository.findByMemberIdAndStatusIn(member.getId(), statusList);
 
+        // 4. DTO 리스트 초기화
         List<WaitOrdersResponseDTO> waitOrderDTOList = new ArrayList<>();
-        List<FirstProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
+        List<FirstProgressOrdersResponseDTO> firstProgressOrderDTOList = new ArrayList<>();
         List<SecondProgressOrderResponseDTO> secondProgressOrderResponseDTOList = new ArrayList<>();
         List<DeniedOrdersResponseDTO> deniedOrderDTOList = new ArrayList<>();
         List<ApproveOrdersResponseDTO> approveOrderDTOList = new ArrayList<>();
         List<GetAllOrderDTO> getAllOrderDTOList = new ArrayList<>();
 
+        // 5. 상태에 맞게 DTO 생성
         for (Order order : orders) {
             // 시간 string으로 포맷
             String createDateFormatted = order.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
 
             // 주문 종류, 주문 상태, 신청자, 부서 이름 string으로 포맷
             String productType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
-            String orderStatus = null;
-            if (order.getStatus() != null) {
-                 if(order.getStatus() == ApprovalStatus.WAIT) {
-                    orderStatus = "대기";
-                } else if(order.getStatus() == ApprovalStatus.DENIED) {
-                    orderStatus = "반려";
-                } else if(order.getStatus() == ApprovalStatus.APPROVE) {
-                    orderStatus = "승인";
-                } else if(order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS){
-                    orderStatus = "1차 처리중";
-                } else {
-                     orderStatus = "2차 처리중";
-                 }
-            }
+
+            String orderStatus = switch(order.getStatus()) {
+                case WAIT -> "대기";
+                case DENIED -> "반려";
+                case APPROVE -> "승인";
+                case IN_FIRST_PROGRESS -> "1차 처리중";
+                case IN_SECOND_PROGRESS -> "2차 처리중";
+            };
+
             String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
             String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDepartment().getDescription() : null;
+
             if(statuses == null || statuses.size() > 1) {
                 String procDate = (order.getSecondProcDate() != null)
                         ? order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"))
@@ -186,7 +183,7 @@ public class CommonOrderService {
                             .orderStatus(orderStatus)
                             .createdAt(createDateFormatted)
                             .build();
-                    progressOrderDTOList.add(progressOrderDTO);
+                    firstProgressOrderDTOList.add(progressOrderDTO);
                 } else if ("second".equalsIgnoreCase(statuses.get(0)) && (order.getStatus() == ApprovalStatus.IN_SECOND_PROGRESS)) {
                     String procDate = order.getSecondProcDate() == null ? order.getFirstProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분")) : order.getSecondProcDate().format(DateTimeFormatter.ofPattern("M월 d일 H시 m분"));
                     SecondProgressOrderResponseDTO secondProgressOrderResponseDTO = SecondProgressOrderResponseDTO.builder()
@@ -237,19 +234,15 @@ public class CommonOrderService {
             }
         }
 
-        if (statuses == null || statuses.size() > 1) {
-            return getAllOrderDTOList;
-        } else if ("wait".equalsIgnoreCase(statuses.get(0))) {
-            return waitOrderDTOList;
-        } else if ("first".equalsIgnoreCase(statuses.get(0))) {
-            return progressOrderDTOList;
-        } else if ("second".equalsIgnoreCase(statuses.get(0))) {
-            return secondProgressOrderResponseDTOList;
-        } else if ("denied".equalsIgnoreCase(statuses.get(0))) {
-            return deniedOrderDTOList;
-        } else {
-            return approveOrderDTOList;
-        }
+        // 6. statuses에 따라 클라이언트에 리턴
+        if (statuses == null || statuses.size() > 1) return getAllOrderDTOList;
+        return switch (statuses.get(0).toLowerCase()) {
+            case "wait" -> waitOrderDTOList;
+            case "first" -> firstProgressOrderDTOList;
+            case "second" -> secondProgressOrderResponseDTOList;
+            case "denied" -> deniedOrderDTOList;
+            default -> approveOrderDTOList;
+        };
     }
 
     public String getImg(Long orderId) {
@@ -267,62 +260,81 @@ public class CommonOrderService {
 
     @Transactional
     public void updateOrder(MultipartFile image, CreateOrderRequestDTO createOrderRequestDTO, Long orderId) {
+
+        // 1. 액세스 토큰 블랙리스트(로그인_로그아웃) / 유효성 검사
         Member member = authUtil.extractMemberAfterTokenValidation();
 
-        //주문 상태가 "대기"인 경우에만 수정 가능
+        // 2. orderId를 통해서 Order 추출
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+        /*
+            주문 수정 조건
+            1. 주문 상태가 "대기"인 경우
+            2. 주문자와 로그인 사용자가 "동일"
+            3. 삭제된 주문이면 안 됨
+         */
+
+        // 3. 주문 상태가 "대기"인 경우에만 수정 가능
         if (order.getStatus() != ApprovalStatus.WAIT) {
             throw new BusinessException(ErrorCode.ORDER_NOT_WAITING);
         }
 
-        //"삭제" 처리된 주문인지 확인
-        if (order.getDeletedAt() != null) {
-            throw new BusinessException(ErrorCode.ORDER_NOT_FOUND);
-        }
-
-        //해당 주문 신청자와 현재 로그인한 사람 비교
+        // 4. 주문자와 로그인 사용자가 "동일"한 경우에만 수정 가능
         if (!Objects.equals(member.getId(), order.getMember().getId())) {
             throw new BusinessException(ErrorCode.INVALID_APPLICANT);
         }
 
-        // ProductType 변환
-        OrderType productType = createOrderRequestDTO.getProductTypeEnum();
+        // 5. 삭제되지 않은 주문인 경우에만 수정 가능
+        if (order.getDeletedAt() != null) {
+            throw new BusinessException(ErrorCode.ORDER_NOT_FOUND);
+        }
 
-        // 이미지 저장 (이미지 유무 확인)
-        String imgUrl = (image == null || image.isEmpty())
+        String imgUrl = (image == null || image.isEmpty()) // 이미지 저장 (이미지 유무 확인)
                 ? order.getReceiptImgUrl()
                 : s3ImageService.upload(image);
 
+        // 6. 주문 수정 메서드
         order.updateInfo(
-                productType,
+                createOrderRequestDTO.getProductTypeEnum(),
                 createOrderRequestDTO.getStoreName(),
                 createOrderRequestDTO.getTotalPrice(),
                 createOrderRequestDTO.getDescription(),
                 imgUrl);
 
+        // 7. 주문 재저장
         orderRepository.save(order);
     }
 
     @Transactional
     public void deleteOrder(Long orderId) {
+
+        // 1. 액세스 토큰 블랙리스트(로그인_로그아웃) / 유효성 검사
         Member member = authUtil.extractMemberAfterTokenValidation();
 
-        //물품 상태가 "대기"인 경우에만 삭제 가능
+        /*
+            주문 삭제 조건
+            1. 주문 상태가 "대기"인 경우
+            2. 주문자와 로그인 사용자가 "동일"
+         */
+
+        // 2. 주문 상태가 "대기"인 경우에만 삭제 가능
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
         if (order.getStatus() != ApprovalStatus.WAIT) {
             throw new BusinessException(ErrorCode.ORDER_NOT_WAITING);
         }
 
-        //해당 물품 신청자와 현재 로그인한 사람 비교
+        // 3. 주문자와 로그인 사용자가 "동일"한 경우에만 삭제 가능
         if (!Objects.equals(member.getId(), order.getMember().getId())) {
             throw new BusinessException(ErrorCode.INVALID_APPLICANT);
         }
 
+        // 4. 논리 삭제 진행 및 재저장
         order.setDeletedAt(LocalDateTime.now());
         orderRepository.save(order);
     }
 
     public String saveBoardImages(MultipartFile image) {
+        // S3 이미지 저장 메서드
         return s3ImageService.upload(image);
     }
 }

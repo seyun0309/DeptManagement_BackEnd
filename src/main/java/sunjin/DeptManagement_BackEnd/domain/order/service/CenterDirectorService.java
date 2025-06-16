@@ -86,54 +86,39 @@ public class CenterDirectorService {
         // 2. Order 담을 List 생성
         List<Order> orders;
 
-        // 3. 조건별(departmentId, memberId, statuses) 주문 목록 조회
+        // 3. statuses가 들어온 경우 해당 상태로 변환, 없으면 모든 statuses로 처리
+        List<ApprovalStatus> statusList = (statuses != null && !statuses.isEmpty())
+                ? statuses.stream().map(ApprovalStatus::fromDescription).toList()
+                : List.of(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
+
+        // 4. 조건별(departmentId, memberId, statuses) 주문 목록 조회
         if (departmentId != null && memberId != null && (statuses != null && !statuses.isEmpty())) {
             // Case 1: demartmentId, memberId, statuses가 모두 null이 아닌 경우
-            List<ApprovalStatus> approvalStatuses = new ArrayList<>();
-            for (String status : statuses) {
-                approvalStatuses.add(ApprovalStatus.fromDescription(status));
-            }
-            orders = orderRepository.findByDepartmentIdAndMemberAndStatusIn(departmentId, memberId, approvalStatuses);
+            orders = orderRepository.findByDepartmentIdAndMemberAndStatusIn(departmentId, memberId, statusList);
         } else if (departmentId != null && memberId != null) {
             // Case 2: statuses만 null인 경우
-            List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
-            orders = orderRepository.findByDepartmentIdAndMemberAndStatusIn(departmentId, memberId, progressStatuses);
+            orders = orderRepository.findByDepartmentIdAndMemberAndStatusIn(departmentId, memberId, statusList);
         } else if (departmentId != null && (statuses != null && !statuses.isEmpty())) {
             // Case 3: memberId만 null인 경우
-            List<ApprovalStatus> approvalStatuses = new ArrayList<>();
-            for (String status : statuses) {
-                approvalStatuses.add(ApprovalStatus.fromDescription(status));
-            }
-            orders = orderRepository.findByDepartmentIdAndStatusIn(departmentId, approvalStatuses);
+            orders = orderRepository.findByDepartmentIdAndStatusIn(departmentId, statusList);
         } else if (departmentId != null) {
             // Case 4: departmentId만 null이 아닌 경우
-            List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
-            orders = orderRepository.findByDepartmentIdAndStatusIn(departmentId, progressStatuses);
+            orders = orderRepository.findByDepartmentIdAndStatusIn(departmentId, statusList);
         } else if (memberId != null && (statuses != null && !statuses.isEmpty())) {
             // Case 5: demartmentId만 null인 경우
-            List<ApprovalStatus> approvalStatuses = new ArrayList<>();
-            for (String status : statuses) {
-                approvalStatuses.add(ApprovalStatus.fromDescription(status));
-            }
-            orders = orderRepository.findByMemberIdAndStatusIn(memberId, approvalStatuses);
+            orders = orderRepository.findByMemberIdAndStatusIn(memberId, statusList);
         } else if (memberId != null) {
             // Case 6: memberId만 null이 아닌 경우
-            List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
-            orders = orderRepository.findByMemberIdAndStatusIn(memberId, progressStatuses);
+            orders = orderRepository.findByMemberIdAndStatusIn(memberId, statusList);
         } else if ((statuses != null && !statuses.isEmpty())) {
             // Case 7: statuses만 null아닌 경우
-            List<ApprovalStatus> approvalStatuses = new ArrayList<>();
-            for (String status : statuses) {
-                approvalStatuses.add(ApprovalStatus.fromDescription(status));
-            }
-            orders = orderRepository.findByStatusIn(approvalStatuses);
+            orders = orderRepository.findByStatusIn(statusList);
         } else {
             // Case 8: 모두 null인 경우
-            List<ApprovalStatus> progressStatuses = Arrays.asList(ApprovalStatus.IN_FIRST_PROGRESS, ApprovalStatus.IN_SECOND_PROGRESS, ApprovalStatus.APPROVE, ApprovalStatus.DENIED);
-            orders = orderRepository.findByStatusIn(progressStatuses);
+            orders = orderRepository.findByStatusIn(statusList);
         }
 
-        // 4. DTO List 생성
+        // 5. DTO List 생성
         List<WaitOrdersResponseDTO> waitOrderDTOList = new ArrayList<>();
         List<FirstProgressOrdersResponseDTO> firstProgressOrderDTOList = new ArrayList<>();
         List<SecondProgressOrderResponseDTO> secondProgressOrderResponseDTOList = new ArrayList<>();
@@ -147,20 +132,14 @@ public class CenterDirectorService {
 
             // 주문 종류, 주문 상태, 신청자, 부서 이름 string으로 포맷
             String productType = order.getOrderType() != null ? order.getOrderType().getDescription() : null;
-            String orderStatus = null;
-            if (order.getStatus() != null) {
-                if(order.getStatus() == ApprovalStatus.WAIT) {
-                    orderStatus = "대기";
-                } else if(order.getStatus() == ApprovalStatus.DENIED) {
-                    orderStatus = "반려";
-                } else if(order.getStatus() == ApprovalStatus.APPROVE) {
-                    orderStatus = "승인";
-                } else if(order.getStatus() == ApprovalStatus.IN_FIRST_PROGRESS){
-                    orderStatus = "1차 처리중";
-                } else {
-                    orderStatus = "2차 처리중";
-                }
-            }
+
+            String orderStatus = switch(order.getStatus()) {
+                case WAIT -> "대기";
+                case DENIED -> "반려";
+                case APPROVE -> "승인";
+                case IN_FIRST_PROGRESS -> "1차 처리중";
+                case IN_SECOND_PROGRESS -> "2차 처리중";
+            };
 
             String applicantName = order.getMember() != null ? order.getMember().getUserName() : null;
             String applicantDeptName = order.getDepartment() != null ? order.getDepartment().getDepartment().getDescription() : null;
@@ -262,6 +241,7 @@ public class CenterDirectorService {
             }
         }
 
+        // 6. statuses에 따라 클라이언트에 리턴
         if (statuses == null || statuses.size() > 1) return getAllOrderDTOList;
         return switch (statuses.get(0).toLowerCase()) {
             case "wait" -> waitOrderDTOList;
@@ -280,9 +260,8 @@ public class CenterDirectorService {
         // 2. "2차 처리 중"인 Order List 추출
         List<Order> orders = orderRepository.findByStatusIsSecondProgress(ApprovalStatus.IN_SECOND_PROGRESS);
 
-        // 3. 리턴 타입으로 List 생성
+        // 3. 리턴 타입으로 List 생성 및 초기화
         List<FirstProgressOrdersResponseDTO> progressOrderDTOList = new ArrayList<>();
-
 
         // 4. 리턴 타입 필드에 맞게 매핑
         for (Order order : orders) {

@@ -24,7 +24,6 @@ public class CreateOrderRequestDTO {
     @NotBlank(message = "총 가격을 입력해주세요")
     private int totalPrice;
 
-    // 적요
     @Schema(description = "적요")
     private String description;
 
